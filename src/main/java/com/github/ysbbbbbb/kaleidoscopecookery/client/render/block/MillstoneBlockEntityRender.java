@@ -26,7 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
-public class MillstoneBlockEntityRender implements IBlockEntityRendererExtension<MillstoneBlockEntity> {
+public class MillstoneBlockEntityRender implements BlockEntityRenderer<MillstoneBlockEntity>, IBlockEntityRendererExtension<MillstoneBlockEntity> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/block/millstone.png");
 
     private final BlockEntityRendererProvider.Context context;

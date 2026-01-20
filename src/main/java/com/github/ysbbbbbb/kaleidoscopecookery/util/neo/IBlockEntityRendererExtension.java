@@ -5,7 +5,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 
 //From Neoforge
-public interface IBlockEntityRendererExtension<T extends BlockEntity> extends BlockEntityRenderer<T> {
+public interface IBlockEntityRendererExtension<T extends BlockEntity> {
     default AABB getRenderBoundingBox(T blockEntity) {
         return new AABB(blockEntity.getBlockPos());
     }

@@ -14,9 +14,9 @@
     "VillagerMixin"
   ],
   "client": [
+    "BlockEntityRendererMixin",
     "GuiLayerRegistrationMixin",
     "ItemRendererMixin",
-    "LevelRendererMixin",
     "MCMixin",
     "ModelBakeryMixin",
     "PlayerRendererMixin",

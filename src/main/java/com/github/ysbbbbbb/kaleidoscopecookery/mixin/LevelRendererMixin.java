@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Environment(EnvType.CLIENT)
@@ -23,6 +24,10 @@ public class LevelRendererMixin {
     @Shadow
     @Final
     private BlockEntityRenderDispatcher blockEntityRenderDispatcher;
+
+    @Shadow
+    @Final
+    private Set<BlockEntity> globalBlockEntities;
 
     @ModifyVariable(
             method = "renderLevel",
@@ -43,5 +48,23 @@ public class LevelRendererMixin {
                         frustum
                 ))
                 .collect(Collectors.toList());
+    }
+
+    @ModifyVariable(
+            method = "renderLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/Set;iterator()Ljava/util/Iterator;",
+                    ordinal = 0
+            ),
+            ordinal = 0
+    )private Set<BlockEntity> modifyGlobalBlockEntityList(@Local Frustum frustum) {
+        return this.globalBlockEntities.stream()
+                .filter(blockEntity -> RenderCulling.isBlockEntityRendererVisible(
+                        blockEntityRenderDispatcher,
+                        blockEntity,
+                        frustum
+                ))
+                .collect(Collectors.toSet());
     }
 }
