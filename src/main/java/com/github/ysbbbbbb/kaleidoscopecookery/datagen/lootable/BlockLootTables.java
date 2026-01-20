@@ -133,6 +133,8 @@ public class BlockLootTables extends BlockLootSubProvider {
                 LootTable.lootTable().withPool(ricePanicle).withPool(extraRiceSeeds)));
 
         FoodBiteRegistry.FOOD_DATA_MAP.forEach(this::dropFoodBite);
+        // 特殊的方块食物
+        dropFoodBite(ModBlocks.COLD_CUT_HAM_SLICES, ModItems.COLD_CUT_HAM_SLICES, Items.BOWL);
 
         this.add(ModBlocks.CHILI_RISTRA , createChiliRistraLootTable());
     }
@@ -205,6 +207,29 @@ public class BlockLootTables extends BlockLootSubProvider {
         return LootItem.lootTableItem(item)
                 .when(LootItemRandomChanceCondition.randomChance(probability)).when(hatMatches)
                 .apply(ApplyBonusCount.addUniformBonusCount(enchantment.getOrThrow(Enchantments.FORTUNE), 2));
+    }
+
+    private void dropFoodBite(Block block, Item food, ItemLike... lootItems) {
+        if (!(block instanceof FoodBiteBlock foodBiteBlock)) {
+            return;
+        }
+        ConstantValue exactly = ConstantValue.exactly(1);
+        StatePropertiesPredicate.Builder notBite = StatePropertiesPredicate.Builder.properties().hasProperty(foodBiteBlock.getBites(), 0);
+        LootItemCondition.Builder builder = LootItemBlockStatePropertyCondition.hasBlockStateProperties(foodBiteBlock).setProperties(notBite);
+
+        LootTable.Builder lootTable = LootTable.lootTable();
+        for (int i = 0; i < lootItems.length; i++) {
+            ItemLike itemLike = lootItems[i];
+            LootPool.Builder rolls = LootPool.lootPool().setRolls(exactly).when(ExplosionCondition.survivesExplosion());
+            if (i == 0) {
+                rolls.add(LootItem.lootTableItem(food).when(builder).otherwise(LootItem.lootTableItem(itemLike)));
+            } else {
+                rolls.add(EmptyLootItem.emptyItem().when(builder).otherwise(LootItem.lootTableItem(itemLike)));
+            }
+            lootTable.withPool(rolls);
+        }
+
+        this.add(block, lootTable);
     }
 
     private void dropFoodBite(ResourceLocation id, FoodBiteRegistry.FoodData data) {

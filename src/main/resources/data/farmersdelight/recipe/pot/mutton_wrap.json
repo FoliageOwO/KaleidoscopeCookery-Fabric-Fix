@@ -1,0 +1,22 @@
+{
+  "type": "kaleidoscope_cookery:pot",
+  "carrier": {
+    "item": "minecraft:bread"
+  },
+  "ingredients": [
+    {
+      "tag": "c:raw_mutton"
+    },
+    {
+      "item": "farmersdelight:cabbage"
+    },
+    {
+      "item": "farmersdelight:onion"
+    }
+  ],
+  "result": {
+    "id": "farmersdelight:cooked_mutton_chops"
+  },
+  "stir_fry_count": 3,
+  "time": 200
+}

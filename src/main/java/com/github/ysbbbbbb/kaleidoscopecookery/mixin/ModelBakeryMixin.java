@@ -35,6 +35,8 @@ public abstract class ModelBakeryMixin {
     private static final ModelResourceLocation RAW_DOUGH_IN_MILLSTONE = ModelResourceLocation.inventory(ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "raw_dough_in_millstone"));
     @Unique
     private static final ModelResourceLocation OIL_IN_MILLSTONE = ModelResourceLocation.inventory(ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "oil_in_millstone"));
+    @Unique
+    private static final ModelResourceLocation COLD_CUT_HAM_SLICES_GUI = ModelResourceLocation.inventory(ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cold_cut_ham_slices_in_gui"));
 
 
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/resources/model/ModelBakery;loadSpecialItemModelAndDependencies(Lnet/minecraft/client/resources/model/ModelResourceLocation;)V", shift = At.Shift.AFTER, ordinal = 1))
@@ -43,5 +45,6 @@ public abstract class ModelBakeryMixin {
         this.loadSpecialItemModelAndDependencies(EGG);
         this.loadSpecialItemModelAndDependencies(RAW_DOUGH_IN_MILLSTONE);
         this.loadSpecialItemModelAndDependencies(OIL_IN_MILLSTONE);
+        this.loadSpecialItemModelAndDependencies(COLD_CUT_HAM_SLICES_GUI);
     }
 }

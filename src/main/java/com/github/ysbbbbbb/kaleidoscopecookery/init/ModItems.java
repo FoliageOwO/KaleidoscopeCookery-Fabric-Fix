@@ -19,11 +19,15 @@ public final class ModItems {
     public static final Item ENAMEL_BASIN = new BlockItem(ModBlocks.ENAMEL_BASIN, new Item.Properties());
     public static final Item KITCHENWARE_RACKS = new WithTooltipsBlockItem(ModBlocks.KITCHENWARE_RACKS, "kitchenware_racks");
     public static final Item CHILI_RISTRA = new BlockItem(ModBlocks.CHILI_RISTRA, new Item.Properties());
+    public static final Item STRUNG_MUSHROOMS = new BlockItem(ModBlocks.STRUNG_MUSHROOMS, new Item.Properties());
     public static final Item STRAW_BLOCK = new BlockItem(ModBlocks.STRAW_BLOCK, new Item.Properties());
     public static final Item SHAWARMA_SPIT = new BlockItem(ModBlocks.SHAWARMA_SPIT, new Item.Properties());
     public static final Item MILLSTONE = new BlockItem(ModBlocks.MILLSTONE, new Item.Properties());
     public static final Item STEAMER = new SteamerItem();
     public static final Item OIL_POT = new OilPotItem();
+
+    // Feast
+    public static final Item COLD_CUT_HAM_SLICES = new LiftBlockItem(ModBlocks.COLD_CUT_HAM_SLICES, "cold_cut_ham_slices");
 
     // Tools
     public static final Item IRON_KITCHEN_KNIFE = new KitchenKnifeItem(Tiers.IRON);
@@ -152,11 +156,13 @@ public final class ModItems {
     public static final Item RAW_PORK_BELLY = new Item(new Item.Properties().food(ModFoods.RAW_PORK_BELLY));
     public static final Item RAW_DONKEY_MEAT = new Item(new Item.Properties().food(ModFoods.RAW_DONKEY_MEAT));
     public static final Item RAW_CUT_SMALL_MEATS = new Item(new Item.Properties().food(ModFoods.RAW_CUT_SMALL_MEATS));
+    public static final Item RAW_MEATBALL  = new Item(new Item.Properties().food(ModFoods.RAW_MEATBALL));
     public static final Item COOKED_LAMB_CHOPS = new Item(new Item.Properties().food(ModFoods.COOKED_LAMB_CHOPS));
     public static final Item COOKED_COW_OFFAL = new Item(new Item.Properties().food(ModFoods.COOKED_COW_OFFAL));
     public static final Item COOKED_PORK_BELLY = new Item(new Item.Properties().food(ModFoods.COOKED_PORK_BELLY));
     public static final Item COOKED_DONKEY_MEAT = new Item(new Item.Properties().food(ModFoods.COOKED_DONKEY_MEAT));
     public static final Item COOKED_CUT_SMALL_MEATS = new Item(new Item.Properties().food(ModFoods.COOKED_CUT_SMALL_MEATS));
+    public static final Item COOKED_MEATBALL  = new Item(new Item.Properties().food(ModFoods.COOKED_MEATBALL));
 
     public static void registerItems() {
         // Block items
@@ -170,12 +176,15 @@ public final class ModItems {
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "enamel_basin"), ENAMEL_BASIN);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "kitchenware_racks"), KITCHENWARE_RACKS);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "chili_ristra"), CHILI_RISTRA);
+        Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "strung_mushrooms"), STRUNG_MUSHROOMS);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "straw_block"), STRAW_BLOCK);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "shawarma_spit"), SHAWARMA_SPIT);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "steamer"), STEAMER);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "millstone"), MILLSTONE);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "oil_pot"), OIL_POT);
 
+        // Feast
+        Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cold_cut_ham_slices"), COLD_CUT_HAM_SLICES);
 
         // Tools
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "iron_kitchen_knife"), IRON_KITCHEN_KNIFE);
@@ -304,11 +313,13 @@ public final class ModItems {
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "raw_pork_belly"), RAW_PORK_BELLY);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "raw_donkey_meat"), RAW_DONKEY_MEAT);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "raw_cut_small_meats"), RAW_CUT_SMALL_MEATS);
+        Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "raw_meatball"), RAW_MEATBALL);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cooked_lamb_chops"), COOKED_LAMB_CHOPS);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cooked_cow_offal"), COOKED_COW_OFFAL);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cooked_pork_belly"), COOKED_PORK_BELLY);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cooked_donkey_meat"), COOKED_DONKEY_MEAT);
         Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cooked_cut_small_meats"), COOKED_CUT_SMALL_MEATS);
+        Registry.register(BuiltInRegistries.ITEM, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cooked_meatball"), COOKED_MEATBALL);
     }
 }
 

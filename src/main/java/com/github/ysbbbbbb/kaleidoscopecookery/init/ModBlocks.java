@@ -9,12 +9,11 @@ import com.github.ysbbbbbb.kaleidoscopecookery.block.decoration.ChairBlock;
 import com.github.ysbbbbbb.kaleidoscopecookery.block.decoration.CookStoolBlock;
 import com.github.ysbbbbbb.kaleidoscopecookery.block.decoration.FruitBasketBlock;
 import com.github.ysbbbbbb.kaleidoscopecookery.block.decoration.TableBlock;
+import com.github.ysbbbbbb.kaleidoscopecookery.block.food.FoodBiteThreeByThreeBlock;
 import com.github.ysbbbbbb.kaleidoscopecookery.block.kitchen.*;
-import com.github.ysbbbbbb.kaleidoscopecookery.block.misc.ChiliRistraBlock;
-import com.github.ysbbbbbb.kaleidoscopecookery.block.misc.OilBlock;
-import com.github.ysbbbbbb.kaleidoscopecookery.block.misc.RecipeBlock;
-import com.github.ysbbbbbb.kaleidoscopecookery.block.misc.StrawBlocks;
+import com.github.ysbbbbbb.kaleidoscopecookery.block.misc.*;
 import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.decoration.*;
+import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.food.FoodBiteThreeByThreeBlockEntity;
 import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.kitchen.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,6 +32,7 @@ public class ModBlocks {
     public static final Block ENAMEL_BASIN = new EnamelBasinBlock();
     public static final Block KITCHENWARE_RACKS = new KitchenwareRacksBlock();
     public static final Block CHILI_RISTRA = new ChiliRistraBlock();
+    public static final Block STRUNG_MUSHROOMS  = new StrungMushroomsBlock();
     public static final Block STRAW_BLOCK = new StrawBlocks();
     public static final Block SHAWARMA_SPIT = new ShawarmaSpitBlock();
     public static final Block MILLSTONE = new MillstoneBlock();
@@ -85,6 +85,9 @@ public class ModBlocks {
     public static final Block TABLE_MANGROVE = new TableBlock();
     public static final Block TABLE_WARPED = new TableBlock();
 
+    //Feast
+    public static final Block COLD_CUT_HAM_SLICES = new FoodBiteThreeByThreeBlock(ModFoods.COLD_CUT_HAM_SLICES_BLOCK, 8, null);
+
     // Block entities
     public static final BlockEntityType<PotBlockEntity> POT_BE = BlockEntityType.Builder.of(PotBlockEntity::new, POT).build(null);
     public static final BlockEntityType<StockpotBlockEntity> STOCKPOT_BE = BlockEntityType.Builder.of(StockpotBlockEntity::new, STOCKPOT).build(null);
@@ -96,6 +99,7 @@ public class ModBlocks {
     public static final BlockEntityType<MillstoneBlockEntity> MILLSTONE_BE = BlockEntityType.Builder.of(MillstoneBlockEntity::new, MILLSTONE).build(null);
     public static final BlockEntityType<RecipeBlockEntity> RECIPE_BLOCK_BE = BlockEntityType.Builder.of(RecipeBlockEntity::new, RECIPE_BLOCK).build(null);
     public static final BlockEntityType<OilPotBlockEntity> OIL_POT_BE = BlockEntityType.Builder.of(OilPotBlockEntity::new, OIL_POT).build(null);
+    public static final BlockEntityType<FoodBiteThreeByThreeBlockEntity> FOOD_BITE_THREE_BY_THREE_BE = BlockEntityType.Builder.of(FoodBiteThreeByThreeBlockEntity::new, COLD_CUT_HAM_SLICES).build(null);
 
     public static final BlockEntityType<ChairBlockEntity> CHAIR_BE = BlockEntityType.Builder.of(ChairBlockEntity::new,
             CHAIR_OAK, CHAIR_SPRUCE, CHAIR_ACACIA, CHAIR_BAMBOO,
@@ -120,6 +124,7 @@ public class ModBlocks {
         Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "enamel_basin"), ENAMEL_BASIN);
         Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "kitchenware_racks"), KITCHENWARE_RACKS);
         Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "chili_ristra"), CHILI_RISTRA);
+        Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "strung_mushrooms"), STRUNG_MUSHROOMS);
         Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "straw_block"), STRAW_BLOCK);
         Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "shawarma_spit"), SHAWARMA_SPIT);
         Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "steamer"), STEAMER);
@@ -172,6 +177,9 @@ public class ModBlocks {
         Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "table_mangrove"), TABLE_MANGROVE);
         Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "table_warped"), TABLE_WARPED);
 
+        // Feast
+        Registry.register(BuiltInRegistries.BLOCK, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cold_cut_ham_slices"), COLD_CUT_HAM_SLICES);
+
         // Block entities
         Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "pot"), POT_BE);
         Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "stockpot"), STOCKPOT_BE);
@@ -185,5 +193,6 @@ public class ModBlocks {
         Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "millstone"), MILLSTONE_BE);
         Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "recipe_book"), RECIPE_BLOCK_BE);
         Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "oil_pot"), OIL_POT_BE);
+        Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "food_bite_three_by_three"), FOOD_BITE_THREE_BY_THREE_BE);
     }
 }

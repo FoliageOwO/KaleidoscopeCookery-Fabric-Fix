@@ -1,5 +1,6 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.client.init;
 
+import com.github.ysbbbbbb.kaleidoscopecookery.client.model.ColdCutHamSlicesModel;
 import com.github.ysbbbbbb.kaleidoscopecookery.client.model.ScarecrowModel;
 import com.github.ysbbbbbb.kaleidoscopecookery.client.model.StrawHatModel;
 import com.github.ysbbbbbb.kaleidoscopecookery.client.render.entity.ScarecrowRender;
@@ -25,5 +26,6 @@ public class ModEntitiesRender {
         // 注册模型层定义
         EntityModelLayerRegistry.registerModelLayer(ScarecrowModel.LAYER_LOCATION, ScarecrowModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(StrawHatModel.LAYER_LOCATION, StrawHatModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(ColdCutHamSlicesModel.LAYER_LOCATION, ColdCutHamSlicesModel::createBodyLayer);
     }
 }

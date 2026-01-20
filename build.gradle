@@ -28,14 +28,17 @@ repositories {
             includeGroup "curse.maven"
         }
     }
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
-            }
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+        content {
+            includeGroup "mezz.jei"
         }
-        filter {
+    }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
             includeGroup "maven.modrinth"
         }
     }
@@ -64,6 +67,21 @@ repositories {
             excludeGroup "io.github.fabricators_of_create"
         }
     }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Crystal Nest"
+                url = "https://maven.crystalnest.it"
+            }
+        }
+        filter {
+            includeGroup "it.crystalnest"
+        }
+    }
+    maven {
+        name = "Fuzs Mod Resources"
+        url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
+    }
 }
 
 dependencies {
@@ -85,6 +103,8 @@ dependencies {
     modImplementation "curse.maven:cloth-config-348521:5729125"
     modApi("me.shedaniel.cloth:basic-math:+")
     modImplementation "curse.maven:architectury-api-419699:5786326"
+    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:21.1.6"
+    //implementation "it.crystalnest:harvest-with-ease-fabric:1.21.1-$hwe_version"
 }
 
 processResources {

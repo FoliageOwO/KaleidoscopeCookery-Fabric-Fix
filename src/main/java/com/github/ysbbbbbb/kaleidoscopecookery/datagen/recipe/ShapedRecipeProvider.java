@@ -170,9 +170,9 @@ public class ShapedRecipeProvider extends ModRecipeProvider {
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModItems.CHILI_RISTRA)
-                .pattern("CC ")
-                .pattern("CC ")
-                .pattern("CC ")
+                .pattern("CC")
+                .pattern("CC")
+                .pattern("CC")
                 .define('C', ModItems.RED_CHILI)
                 .unlockedBy("has_red_chili", has(ModItems.RED_CHILI))
                 .save(consumer);

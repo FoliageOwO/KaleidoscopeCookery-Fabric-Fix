@@ -19,6 +19,10 @@ public interface TagMod {
      */
     TagKey<Item> COOKERY_MOD_SEEDS = itemTag("cookery_mod_seeds");
     /**
+     * 不允许加入汤锅、炒锅的物品
+     */
+    TagKey<Item> INGREDIENT_BLOCKLIST = itemTag("ingredient_blocklist");
+    /**
      * 任意可以点燃本模组炉灶的物品
      */
     TagKey<Item> LIT_STOVE = itemTag("lit_stove");

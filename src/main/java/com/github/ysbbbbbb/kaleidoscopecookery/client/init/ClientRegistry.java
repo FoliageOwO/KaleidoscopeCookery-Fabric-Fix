@@ -32,7 +32,6 @@ public class ClientRegistry {
         ItemProperties.register(ModItems.STOCKPOT_LID, StockpotLidItem.USING_PROPERTY, StockpotLidItem::getTexture);
         ItemProperties.register(ModItems.STEAMER, SteamerItem.HAS_ITEMS, SteamerItem::getTexture);
         ItemProperties.register(ModItems.RECIPE_ITEM, RecipeItem.HAS_RECIPE_PROPERTY, RecipeItem::getTexture);
-        ItemProperties.register(ModItems.RAW_DOUGH, RawDoughItem.PULL_PROPERTY, RecipeItem::getTexture);
         ItemProperties.register(ModItems.OIL_POT, OilPotItem.HAS_OIL_PROPERTY, OilPotItem::getTexture);
         ItemProperties.register(ModItems.TRANSMUTATION_LUNCH_BAG, TransmutationLunchBagItem.HAS_ITEMS_PROPERTY, TransmutationLunchBagItem::getTexture);
         ItemProperties.register(ModItems.RAW_DOUGH, RawDoughItem.PULL_PROPERTY, RawDoughItem::getTexture);
@@ -55,6 +54,7 @@ public class ClientRegistry {
         BlockEntityRenderers.register(ModBlocks.MILLSTONE_BE, MillstoneBlockEntityRender::new);
         BlockEntityRenderers.register(ModBlocks.RECIPE_BLOCK_BE, RecipeBlockEntityRender::new);
         BlockEntityRenderers.register(ModBlocks.STEAMER_BE, SteamerBlockEntityRender::new);
+        BlockEntityRenderers.register(ModBlocks.FOOD_BITE_THREE_BY_THREE_BE, FoodBiteThreeByThreeBlockEntityRender::new);
 
         EntityModelLayerRegistry.registerModelLayer(MillstoneModel.LAYER_LOCATION, MillstoneModel::createBodyLayer);
     }

@@ -16,6 +16,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -40,8 +41,12 @@ public class SickleItem extends SwordItem {
             () -> Ingredient.of(Items.FLINT)
     );
 
+    public SickleItem(Tier tier, Properties properties) {
+        super(tier, properties);
+    }
+
     public SickleItem() {
-        super(SICKLE_TIER,  new Properties());
+        this(SICKLE_TIER,  new Properties());
     }
 
     @Override
@@ -50,7 +55,7 @@ public class SickleItem extends SwordItem {
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext context) {
+    public @NotNull InteractionResult useOn(UseOnContext context) {
         // 生成挥动音效和粒子
         Player player = context.getPlayer();
         if (player == null) {

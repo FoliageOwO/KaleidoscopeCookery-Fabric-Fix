@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -15,9 +16,11 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,15 +31,27 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class BowlFoodBlockItem extends BlockItem {
     private final List<MobEffectInstance> effectInstances = Lists.newArrayList();
+    private final Optional<ItemStack> usingConvertsTo;
 
-    public BowlFoodBlockItem(Block pBlock, FoodProperties properties) {
-        super(pBlock, new Properties().stacksTo(16).food(properties));
+    public BowlFoodBlockItem(Block block, FoodProperties properties, @Nullable ItemLike usingConvertsTo) {
+        super(block, new Item.Properties().stacksTo(16).food(
+                new FoodProperties(
+                        properties.nutrition(),
+                        properties.saturation(),
+                        properties.canAlwaysEat(),
+                        properties.eatSeconds(),
+                        usingConvertsTo == null ? Optional.empty() : Optional.of(new ItemStack(usingConvertsTo)),
+                        properties.effects())
+        ));
+        this.usingConvertsTo = usingConvertsTo == null ? Optional.empty() : Optional.of(new ItemStack(usingConvertsTo));
         properties.effects().forEach(effect -> {
             if (effect.probability() >= 1F) {
                 effectInstances.add(effect.effect());
@@ -56,6 +71,10 @@ public class BowlFoodBlockItem extends BlockItem {
             List<ItemStack> drops = getDrops(state, builder);
             drops.forEach(itemStack -> {
                 if (itemStack.isEmpty()) {
+                    return;
+                }
+                // 需要剔除 usingConvertsTo，因为已经给过了
+                if (this.usingConvertsTo.isPresent() && ItemStack.isSameItem(itemStack, this.usingConvertsTo.get())) {
                     return;
                 }
                 if (entity instanceof Player player) {
@@ -85,7 +104,16 @@ public class BowlFoodBlockItem extends BlockItem {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         String key = "tooltip.%s.%s.maxim".formatted(id.getNamespace(), id.getPath());
-        tooltip.add(Component.translatable(key).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+        MutableComponent full = Component.translatable(key).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC);
+        // 先拿到纯文本，再按 \n 切
+        String text = full.getString();
+        for (String line : text.split("\n")) {
+            if (!line.isEmpty()) {
+                tooltip.add(Component.literal(line).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+            } else {
+                tooltip.add(CommonComponents.EMPTY);
+            }
+        }
         if (!this.effectInstances.isEmpty()) {
             tooltip.add(CommonComponents.space());
             PotionContents.addPotionTooltip(this.effectInstances, tooltip::add, 1.0F, context.tickRate());

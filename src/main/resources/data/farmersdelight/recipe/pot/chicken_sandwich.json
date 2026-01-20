@@ -1,0 +1,22 @@
+{
+  "type": "kaleidoscope_cookery:pot",
+  "carrier": {
+    "item": "minecraft:bread"
+  },
+  "ingredients": [
+    {
+      "tag": "c:raw_chicken"
+    },
+    {
+      "tag": "c:crops/cabbage"
+    },
+    {
+      "item": "minecraft:carrot"
+    }
+  ],
+  "result": {
+    "id": "farmersdelight:chicken_sandwich"
+  },
+  "stir_fry_count": 3,
+  "time": 200
+}

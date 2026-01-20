@@ -15,8 +15,13 @@
   ],
   "client": [
     "GuiLayerRegistrationMixin",
+    "ItemRendererMixin",
+    "LevelRendererMixin",
     "MCMixin",
-    "ModelBakeryMixin"
+    "ModelBakeryMixin",
+    "PlayerRendererMixin",
+    "realize.HumanoidModelImplementationMixin",
+    "realize.HumanoidModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1
