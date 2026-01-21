@@ -1,6 +1,5 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.mixin;
 
-import com.github.ysbbbbbb.kaleidoscopecookery.client.animation.CustomArmPose;
 import com.github.ysbbbbbb.kaleidoscopecookery.item.LiftBlockItem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
