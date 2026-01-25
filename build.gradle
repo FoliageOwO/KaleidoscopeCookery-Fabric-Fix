@@ -92,9 +92,6 @@ dependencies {
     }
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation("vectorwing:FarmersDelight:${fdrf_version}") {
-        exclude(group: "net.fabricmc")
-    }
     modImplementation "curse.maven:ftb-ultimine-fabric-448231:7188393"
     modImplementation "curse.maven:ftb-library-fabric-438495:7260615"
     modImplementation("mezz.jei:jei-${project.minecraft_version}-fabric:${project.jei_version}")
@@ -103,6 +100,17 @@ dependencies {
     modImplementation "curse.maven:cloth-config-348521:5729125"
     modApi("me.shedaniel.cloth:basic-math:+")
     modImplementation "curse.maven:architectury-api-419699:5786326"
+
+    // delight family compact
+    modImplementation("vectorwing:FarmersDelight:${fdrf_version}") {
+        exclude(group: "net.fabricmc")
+    }
+    modImplementation "curse.maven:rustic-delight-1106612:7465640"
+    modImplementation "curse.maven:trail-tales-delight-1198527:6492803"
+    modImplementation "curse.maven:brewin-and-chewin-637808:7523546"
+    modImplementation("house.greenhouse:greenhouseconfig:2.2.3+1.21.1-fabric")
+    modImplementation("house.greenhouse:greenhouseconfig_toml:1.1.0")
+
     modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:21.1.6"
     //implementation "it.crystalnest:harvest-with-ease-fabric:1.21.1-$hwe_version"
 }

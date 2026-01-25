@@ -1,0 +1,28 @@
+{
+  "type": "kaleidoscope_cookery:pot",
+  "carrier": {
+    "item": "minecraft:bowl"
+  },
+  "ingredients": [
+    {
+      "tag": "brewinandchewin:cheese_wedges"
+    },
+    {
+      "tag": "c:eggs"
+    },
+    {
+      "tag": "c:eggs"
+    },
+    {
+      "tag": "c:vegetables/onion"
+    },
+    {
+      "tag": "c:vegetables/carrot"
+    }
+  ],
+  "result": {
+    "id": "brewinandchewin:vegetable_omelet"
+  },
+  "stir_fry_count": 3,
+  "time": 200
+}

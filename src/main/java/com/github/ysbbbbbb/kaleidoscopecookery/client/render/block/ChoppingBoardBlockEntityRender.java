@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -34,7 +33,7 @@ public class ChoppingBoardBlockEntityRender implements BlockEntityRenderer<Chopp
             choppingBoard.previousModel = modelId;
             choppingBoard.cacheModels = new ResourceLocation[choppingBoard.getMaxCutCount() + 1];
             for (int i = 0; i <= choppingBoard.getMaxCutCount(); i++) {
-                choppingBoard.cacheModels[i] = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "chopping_board/" + modelId.getPath() + "/" + i);
+                choppingBoard.cacheModels[i] = ResourceLocation.fromNamespaceAndPath(modelId.getNamespace(), "chopping_board/" + modelId.getPath() + "/" + i);
             }
         }
         if (choppingBoard.cacheModels == null) {
@@ -51,6 +50,10 @@ public class ChoppingBoardBlockEntityRender implements BlockEntityRenderer<Chopp
         BakedModel model = itemRenderer.getItemModelShaper().getModelManager().getModel(cacheModel);
         RenderType renderType = Sheets.cutoutBlockSheet();
         VertexConsumer vertexConsumer = ItemRenderer.getFoilBufferDirect(buffer, renderType, true, false);
+        if (model == null) {
+            KaleidoscopeCookery.LOGGER.error("Model:{} is null. It is possible that static chopping board model resource is missing!", cacheModel);
+            return;
+        }
         itemRenderer.renderModelLists(model, ItemStack.EMPTY, packedLight, packedOverlay, poseStack, vertexConsumer);
         poseStack.popPose();
     }
