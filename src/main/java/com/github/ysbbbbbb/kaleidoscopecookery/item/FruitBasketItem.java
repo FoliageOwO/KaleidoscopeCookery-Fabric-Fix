@@ -67,7 +67,7 @@ public class FruitBasketItem extends BlockItem {
 
         public static final StreamCodec<RegistryFriendlyByteBuf, ItemContainer> STREAM_CODEC = new StreamCodec<>() {
             @Override
-            public ItemContainer decode(RegistryFriendlyByteBuf buffer) {
+            public @NotNull ItemContainer decode(RegistryFriendlyByteBuf buffer) {
                 CompoundTag compoundTag = buffer.readNbt();
                 NonNullList<ItemStack> handler = NonNullList.withSize(8, ItemStack.EMPTY);
                 if (compoundTag != null) {

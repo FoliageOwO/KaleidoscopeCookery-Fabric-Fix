@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -29,6 +30,7 @@ import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
@@ -72,12 +74,20 @@ public class TableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         ItemStack itemInHand = player.getItemInHand(hand);
         if (hand == InteractionHand.MAIN_HAND) {
             if (itemInHand.is(ItemTags.WOOL_CARPETS)) {
                 return useWithCarpets(state, level, pos, player, itemInHand);
-            } else if (level.getBlockEntity(pos) instanceof TableBlockEntity table) {
+            } else if (itemInHand.is(Items.SHEARS) && state.getValue(HAS_CARPET) && level.getBlockEntity(pos) instanceof TableBlockEntity table) {
+                level.setBlockAndUpdate(pos, state.setValue(HAS_CARPET, false));
+                DyeColor originalColor = table.getColor();
+                ItemStack carpetItem = getCarpetByColor(originalColor).getDefaultInstance();
+                BlockDrop.popResource(level, pos, 0.25, carpetItem);
+                level.playSound(null, pos, SoundEvents.SNOW_GOLEM_SHEAR, player.getSoundSource(), 1.0F, 1.0F);
+                return ItemInteractionResult.SUCCESS;
+            }
+            else if (level.getBlockEntity(pos) instanceof TableBlockEntity table) {
                 return useWithOther(level, pos, player, hand, table, itemInHand);
             }
         }
@@ -157,7 +167,7 @@ public class TableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootParams.Builder lootParamsBuilder) {
+    public @NotNull List<ItemStack> getDrops(BlockState state, LootParams.Builder lootParamsBuilder) {
         List<ItemStack> drops = super.getDrops(state, lootParamsBuilder);
         BlockEntity parameter = lootParamsBuilder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (parameter instanceof TableBlockEntity tableBlockEntity) {
@@ -165,8 +175,7 @@ public class TableBlock extends Block implements SimpleWaterloggedBlock, EntityB
                 Item carpet = getCarpetByColor(tableBlockEntity.getColor());
                 drops.add(new ItemStack(carpet));
             }
-            NonNullList<ItemStack> items = tableBlockEntity.getItems();
-            for (ItemStack item : items) {
+            for (ItemStack item : tableBlockEntity.getItems()) {
                 drops.add(item.copy());
             }
         }
@@ -217,7 +226,7 @@ public class TableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor levelAccessor, BlockPos pos, BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor levelAccessor, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
             levelAccessor.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }
@@ -249,13 +258,18 @@ public class TableBlock extends Block implements SimpleWaterloggedBlock, EntityB
     }
 
     @Override
-    public FluidState getFluidState(BlockState state) {
+    public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
+    public @NotNull VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
         return FACE;
+    }
+
+    @Override
+    protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
+        return false;
     }
 
     @Override

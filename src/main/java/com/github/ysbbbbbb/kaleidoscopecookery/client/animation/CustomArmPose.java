@@ -2,6 +2,8 @@ package com.github.ysbbbbbb.kaleidoscopecookery.client.animation;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.util.neo.client.animation.EnumProxy;
 import com.github.ysbbbbbb.kaleidoscopecookery.util.neo.client.animation.IArmPoseTransformer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
@@ -15,7 +17,7 @@ import java.util.List;
 
 /**
  * 自定义的第三人称姿势
- */
+ */@Environment(EnvType.CLIENT)
 public class CustomArmPose {
     /**
      * 玩家手持大盘菜时，举起的动画

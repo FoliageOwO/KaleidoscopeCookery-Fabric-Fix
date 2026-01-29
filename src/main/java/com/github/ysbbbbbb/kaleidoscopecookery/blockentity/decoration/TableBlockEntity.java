@@ -16,7 +16,7 @@ public class TableBlockEntity extends BaseBlockEntity {
     private static final String SHOW_ITEMS = "ShowItems";
 
     private DyeColor color = DyeColor.WHITE;
-    private NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> items = NonNullList.withSize(4, ItemStack.EMPTY);
 
     public TableBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlocks.TABLE_BE, pos, blockState);

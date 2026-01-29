@@ -6,6 +6,8 @@ import com.github.ysbbbbbb.kaleidoscopecookery.client.resources.ItemRenderReplac
 import com.github.ysbbbbbb.kaleidoscopecookery.client.resources.ItemRenderReplacerReloadListener;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -21,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 
+@Environment(EnvType.CLIENT)
 public class SteamerBlockEntityRender implements BlockEntityRenderer<SteamerBlockEntity> {
     private final ItemRenderer itemRenderer;
 
