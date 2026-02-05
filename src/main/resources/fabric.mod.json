@@ -31,9 +31,9 @@
   },
   "suggests": {
     "jei": "*",
-    "farmersdelight": ">1.21.11-3.4.6+refabricated"
+    "farmersdelight": ">=1.21.11-3.4.6+refabricated"
   },
   "breaks": {
-    "farmersdelight": "<=1.21.11-3.4.6+refabricated"
+    "farmersdelight": "<1.21.11-3.4.6+refabricated"
   }
 }
