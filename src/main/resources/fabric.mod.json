@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "kaleidoscope_cookery",
   "version": "${version}",
-  "name": "Kaleidoscope Cookery Refabricated",
+  "name": "Kaleidoscope Cookery Fix (by FoliageOwO)",
   "description": "Cook all kinds of delicious food!",
   "authors": ["ysbb", "tartaric_acid", "NightEpiphany"],
   "contributors": ["chenjdy"],
@@ -31,9 +31,9 @@
   },
   "suggests": {
     "jei": "*",
-    "farmersdelight": ">1.21.1-3.0.0+refabricated"
+    "farmersdelight": ">1.21.11-3.4.6+refabricated"
   },
   "breaks": {
-    "farmersdelight": "<=1.21.1-3.0.0+refabricated"
+    "farmersdelight": "<=1.21.11-3.4.6+refabricated"
   }
 }
