@@ -52,6 +52,9 @@ public class StockpotBlockEntityRender implements BlockEntityRenderer<StockpotBl
         }
         int status = stockpot.getStatus();
         ISoupBaseRender soupBase = this.soupBaseRender.apply(stockpot.getSoupBaseId());
+        if (soupBase == null) {
+            return;
+        }
         if (status == StockpotBlockEntity.PUT_INGREDIENT) {
             soupBase.renderWhenPutIngredient(stockpot, partialTick, poseStack, buffer, packedLight, packedOverlay, 0.38f);
             renderItems(stockpot, poseStack, buffer, packedLight, packedOverlay, false);

@@ -272,7 +272,9 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
         // 起锅烧油，放入食材阶段
         if (this.status == PUT_INGREDIENT) {
             if (!this.isEmpty()) {
-                this.startCooking(level);
+                if (!level.isClientSide()) {
+                    this.startCooking(level);
+                }
                 ModTrigger.EVENT.trigger(user, ModEventTriggerType.STIR_FRY_IN_POT);
             }
         }
@@ -288,7 +290,11 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
 
     private void startCooking(Level level) {
         SimpleInput simpleInput = new SimpleInput(this.inputs);
-        level.getServer().getRecipeManager().getRecipeFor(ModRecipes.POT_RECIPE, simpleInput, level).ifPresentOrElse(recipe -> {
+        var server = level.getServer();
+        if (server == null) {
+            return;
+        }
+        server.getRecipeManager().getRecipeFor(ModRecipes.POT_RECIPE, simpleInput, level).ifPresentOrElse(recipe -> {
             // 如果合成表符合，那么进入炒菜阶段
             PotRecipe value = recipe.value();
             this.carrier = value.carrier();

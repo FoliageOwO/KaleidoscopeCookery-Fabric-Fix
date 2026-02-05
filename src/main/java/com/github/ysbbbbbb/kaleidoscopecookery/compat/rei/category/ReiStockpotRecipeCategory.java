@@ -21,6 +21,7 @@ import me.shedaniel.rei.api.common.display.basic.BasicDisplay;
 import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -111,7 +112,10 @@ public class ReiStockpotRecipeCategory implements DisplayCategory<ReiStockpotRec
 
     public static void registerDisplays(DisplayRegistry registry) {
         List<RecipeHolder<StockpotRecipe>> list = new ArrayList<>(registry.getRecipeManager().getAllRecipesFor(ModRecipes.STOCKPOT_RECIPE));
-        FarmersDelightCompat.getTransformRecipeForJei(Minecraft.getInstance().level, list);
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null) {
+            FarmersDelightCompat.getTransformRecipeForJei(level, list);
+        }
 
         list.forEach(r -> {
             List<EntryIngredient> inputs = ReiUtil.ofIngredients(r.value().getIngredients());
