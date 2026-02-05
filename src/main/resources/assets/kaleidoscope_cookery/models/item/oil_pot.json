@@ -12,5 +12,6 @@
         "kaleidoscope_cookery:has_oil": 1.0
       }
     }
-  ]
+  ],
+  "parent": "kaleidoscope_cookery:item/pot_no_oil"
 }

@@ -6,10 +6,8 @@ import com.github.ysbbbbbb.kaleidoscopecookery.inventory.tooltip.ItemContainerTo
 import com.github.ysbbbbbb.kaleidoscopecookery.util.neo.ItemStackHandler;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -22,8 +20,8 @@ public class FruitBasketItem extends BlockItem {
 
     private static final int MAX_SLOTS = 8;
 
-    public FruitBasketItem() {
-        super(ModBlocks.FRUIT_BASKET, new Properties().stacksTo(1));
+    public FruitBasketItem(Properties properties) {
+        super(ModBlocks.FRUIT_BASKET, properties.stacksTo(1));
     }
 
     public static ItemStackHandler getItems(ItemStack stack) {
@@ -68,18 +66,17 @@ public class FruitBasketItem extends BlockItem {
         public static final StreamCodec<RegistryFriendlyByteBuf, ItemContainer> STREAM_CODEC = new StreamCodec<>() {
             @Override
             public @NotNull ItemContainer decode(RegistryFriendlyByteBuf buffer) {
-                CompoundTag compoundTag = buffer.readNbt();
+                var list = ItemStack.OPTIONAL_LIST_STREAM_CODEC.decode(buffer);
                 NonNullList<ItemStack> handler = NonNullList.withSize(8, ItemStack.EMPTY);
-                if (compoundTag != null) {
-                    ContainerHelper.loadAllItems(compoundTag, handler, buffer.registryAccess());
+                for (int i = 0; i < Math.min(list.size(), handler.size()); i++) {
+                    handler.set(i, list.get(i));
                 }
                 return new ItemContainer(handler);
             }
 
             @Override
             public void encode(RegistryFriendlyByteBuf buffer, ItemContainer value) {
-                CompoundTag compoundTag = ContainerHelper.saveAllItems(new CompoundTag(), value.items, buffer.registryAccess());
-                buffer.writeNbt(compoundTag);
+                ItemStack.OPTIONAL_LIST_STREAM_CODEC.encode(buffer, value.items);
             }
         };
     }

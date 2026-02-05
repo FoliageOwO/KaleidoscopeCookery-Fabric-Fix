@@ -5,13 +5,13 @@ import com.github.ysbbbbbb.kaleidoscopecookery.init.ModLootModifier;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Set;
 
 public class AdvanceEntityMatchTool implements LootItemCondition {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "advance_entity_match_tool");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "advance_entity_match_tool");
     public static final MapCodec<AdvanceEntityMatchTool> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             EquipmentSlot.CODEC.fieldOf("slot").forGetter(tool -> tool.slot),
             ItemPredicate.CODEC.fieldOf("predicate").forGetter(tool -> tool.predicate)
@@ -40,14 +40,14 @@ public class AdvanceEntityMatchTool implements LootItemCondition {
     }
 
     @Override
-    public @NotNull Set<LootContextParam<?>> getReferencedContextParams() {
+    public @NotNull Set<ContextKey<?>> getReferencedContextParams() {
         return ImmutableSet.of(LootContextParams.LAST_DAMAGE_PLAYER);
     }
 
     @Override
     public boolean test(LootContext context) {
-        if (context.hasParam(LootContextParams.LAST_DAMAGE_PLAYER)) {
-            Player player = context.getParam(LootContextParams.LAST_DAMAGE_PLAYER);
+        if (context.hasParameter(LootContextParams.LAST_DAMAGE_PLAYER)) {
+            Player player = context.getParameter(LootContextParams.LAST_DAMAGE_PLAYER);
             ItemStack stack = player.getItemBySlot(this.slot);
             return this.predicate.test(stack);
         }

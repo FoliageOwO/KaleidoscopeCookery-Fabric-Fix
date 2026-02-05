@@ -4,9 +4,10 @@ import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.BaseBlockEntity;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModBlocks;
 import com.github.ysbbbbbb.kaleidoscopecookery.util.neo.ItemStackHandler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class RecipeBlockEntity extends BaseBlockEntity {
     private static final String SHOW_ITEMS = "ShowItems";
@@ -17,17 +18,15 @@ public class RecipeBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put(SHOW_ITEMS, this.items.serializeNBT(registries));
+    protected void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.store(SHOW_ITEMS, CompoundTag.CODEC, this.items.serializeNBT(this.getLevel().registryAccess()));
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains(SHOW_ITEMS)) {
-            this.items.deserializeNBT(registries, tag.getCompound(SHOW_ITEMS));
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        tag.read(SHOW_ITEMS, CompoundTag.CODEC).ifPresent(compound -> this.items.deserializeNBT(tag.lookup(), compound));
     }
 
     public ItemStackHandler getItems() {

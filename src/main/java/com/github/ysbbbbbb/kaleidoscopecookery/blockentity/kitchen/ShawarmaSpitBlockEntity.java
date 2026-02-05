@@ -8,8 +8,6 @@ import com.github.ysbbbbbb.kaleidoscopecookery.init.ModParticles;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.tag.TagMod;
 import com.github.ysbbbbbb.kaleidoscopecookery.util.ItemUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,6 +19,8 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class ShawarmaSpitBlockEntity extends BaseBlockEntity implements IShawarmaSpit {
     private static final int MAX_ITEMS = 8;
@@ -45,13 +45,16 @@ public class ShawarmaSpitBlockEntity extends BaseBlockEntity implements IShawarm
             return false;
         }
         // 尝试通过输入的物品寻找营火配方
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return false;
+        }
         SingleRecipeInput singleRecipeInput = new SingleRecipeInput(itemStack);
-        return this.quickCheck.getRecipeFor(singleRecipeInput, level).map(recipe -> {
+        return this.quickCheck.getRecipeFor(singleRecipeInput, serverLevel).map(recipe -> {
             // 如果找到了配方，则设置正在烹饪的物品和烹饪时间
             this.cookingItem = itemStack.split(MAX_ITEMS);
             this.cookedItem = recipe.value().assemble(singleRecipeInput, level.registryAccess());
             this.cookedItem.setCount(this.cookingItem.getCount());
-            this.cookTime = recipe.value().getCookingTime();
+            this.cookTime = recipe.value().cookingTime();
             this.refresh();
             if (level instanceof ServerLevel) {
                 level.playSound(null,
@@ -159,22 +162,18 @@ public class ShawarmaSpitBlockEntity extends BaseBlockEntity implements IShawarm
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put(COOKING_ITEM, this.cookingItem.saveOptional(registries));
-        tag.put(COOKED_ITEM, this.cookedItem.saveOptional(registries));
+    protected void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.store(COOKING_ITEM, ItemStack.OPTIONAL_CODEC, this.cookingItem);
+        tag.store(COOKED_ITEM, ItemStack.OPTIONAL_CODEC, this.cookedItem);
         tag.putInt(COOK_TIME, this.cookTime);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains(COOKING_ITEM)) {
-            this.cookingItem = ItemStack.parseOptional(registries, tag.getCompound(COOKING_ITEM));
-        }
-        if (tag.contains(COOKED_ITEM)) {
-            this.cookedItem = ItemStack.parseOptional(registries, tag.getCompound(COOKED_ITEM));
-        }
-        this.cookTime = tag.getInt(COOK_TIME);
+    protected void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        this.cookingItem = tag.read(COOKING_ITEM, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+        this.cookedItem = tag.read(COOKED_ITEM, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+        this.cookTime = tag.getIntOr(COOK_TIME, 0);
     }
 }

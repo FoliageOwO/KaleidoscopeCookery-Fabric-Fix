@@ -4,7 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 @Environment(EnvType.CLIENT)
@@ -26,9 +26,9 @@ public class ModModelLoading {
         });
     }
 
-    private static ResourceLocation handleModelId(ResourceLocation input) {
+    private static Identifier handleModelId(Identifier input) {
         String namespace = input.getNamespace();
         String path = input.getPath();
-        return ResourceLocation.fromNamespaceAndPath(namespace, path.substring(MODELS.length(), path.length() - JSON.length()));
+        return Identifier.fromNamespaceAndPath(namespace, path.substring(MODELS.length(), path.length() - JSON.length()));
     }
 }

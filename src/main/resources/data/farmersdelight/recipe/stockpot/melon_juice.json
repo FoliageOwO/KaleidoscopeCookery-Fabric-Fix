@@ -5,21 +5,11 @@
   "finished_bubble_color": 16711680,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_red",
   "ingredients": [
-    {
-      "item": "minecraft:melon_slice"
-    },
-    {
-      "item": "minecraft:melon_slice"
-    },
-    {
-      "item": "minecraft:melon_slice"
-    },
-    {
-      "item": "minecraft:melon_slice"
-    },
-    {
-      "item": "minecraft:sugar"
-    }
+    "minecraft:melon_slice",
+    "minecraft:melon_slice",
+    "minecraft:melon_slice",
+    "minecraft:melon_slice",
+    "minecraft:sugar"
   ],
   "result": {
     "id": "farmersdelight:melon_juice"

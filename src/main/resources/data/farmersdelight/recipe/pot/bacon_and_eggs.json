@@ -1,21 +1,11 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "item": "minecraft:bowl"
-  },
+  "carrier": "minecraft:bowl",
   "ingredients": [
-    {
-      "tag": "c:raw_bacon"
-    },
-    {
-      "tag": "c:raw_bacon"
-    },
-    {
-      "tag": "c:eggs"
-    },
-    {
-      "tag": "c:eggs"
-    }
+    "#c:raw_bacon",
+    "#c:raw_bacon",
+    "#c:eggs",
+    "#c:eggs"
   ],
   "result": {
     "id": "farmersdelight:bacon_and_eggs"

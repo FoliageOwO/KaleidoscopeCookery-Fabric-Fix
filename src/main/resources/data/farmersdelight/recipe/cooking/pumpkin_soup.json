@@ -5,18 +5,10 @@
   "finished_bubble_color": 2551400,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_orange",
   "ingredients": [
-    {
-      "item": "farmersdelight:pumpkin_slice"
-    },
-    {
-      "tag": "c:crops/cabbage"
-    },
-    {
-      "tag": "c:raw_pork"
-    },
-    {
-      "tag": "c:milk"
-    }
+    "farmersdelight:pumpkin_slice",
+    "#c:crops/cabbage",
+    "#c:raw_pork",
+    "#c:milk"
   ],
   "result": {
     "id": "farmersdelight:pumpkin_soup"

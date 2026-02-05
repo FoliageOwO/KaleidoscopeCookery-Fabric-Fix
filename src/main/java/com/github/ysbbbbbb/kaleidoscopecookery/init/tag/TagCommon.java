@@ -1,7 +1,7 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.init.tag;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -82,43 +82,43 @@ public interface TagCommon {
     TagKey<Block> HUMID_HUMID = eclipticSeasonsTag("crops/humid_humid");
 
     // 农夫乐事
-    TagKey<Item> FD_KNIVES = TagKey.create(Registries.ITEM, ResourceLocation.parse("farmersdelight:tools/knives"));
-    TagKey<Block> FD_HEAT_SOURCES = TagKey.create(Registries.BLOCK, ResourceLocation.parse("farmersdelight:heat_sources"));
+    TagKey<Item> FD_KNIVES = TagKey.create(Registries.ITEM, Identifier.parse("farmersdelight:tools/knives"));
+    TagKey<Block> FD_HEAT_SOURCES = TagKey.create(Registries.BLOCK, Identifier.parse("farmersdelight:heat_sources"));
 
     // carry on
-    TagKey<Block> CARRYON_BLOCK_BLACKLIST = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("carryon", "block_blacklist"));
+    TagKey<Block> CARRYON_BLOCK_BLACKLIST = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("carryon", "block_blacklist"));
 
     // FTB 连锁
-    TagKey<Block> FTB_SINGLE_CROP_HARVESTING_BLACKLIST = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("ftbultimine", "single_crop_harvesting_blacklist"));
-    TagKey<Block> FTB_EXCLUDED_BLOCKS = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("ftbultimine", "excluded_blocks"));
+    TagKey<Block> FTB_SINGLE_CROP_HARVESTING_BLACKLIST = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("ftbultimine", "single_crop_harvesting_blacklist"));
+    TagKey<Block> FTB_EXCLUDED_BLOCKS = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("ftbultimine", "excluded_blocks"));
 
     static TagKey<Item> itemTag(String name) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", name));
+        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", name));
     }
 
     /**
      * 兼容均衡饮食模组
      */
     static TagKey<Item> dietTag(String name) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("diet", name));
+        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("diet", name));
     }
 
     /**
      * 静谧四季模组兼容
      */
     static TagKey<Item> seasonsItemTag(String name) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("sereneseasons", name));
+        return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("sereneseasons", name));
     }
 
     static TagKey<Block> seasonsBlockTag(String name) {
-        return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("sereneseasons", name));
+        return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("sereneseasons", name));
     }
 
     static TagKey<Block> blockTag(String name) {
-        return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("c", name));
+        return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("c", name));
     }
 
     static TagKey<Block> eclipticSeasonsTag(String name) {
-        return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("eclipticseasons", name));
+        return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("eclipticseasons", name));
     }
 }

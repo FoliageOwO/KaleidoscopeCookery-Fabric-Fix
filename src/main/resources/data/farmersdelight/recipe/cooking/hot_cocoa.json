@@ -5,18 +5,10 @@
   "finished_bubble_color": 6039351,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_brown",
   "ingredients": [
-    {
-      "tag": "c:milk"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:cocoa_beans"
-    },
-    {
-      "item": "minecraft:cocoa_beans"
-    }
+    "#c:milk",
+    "minecraft:sugar",
+    "minecraft:cocoa_beans",
+    "minecraft:cocoa_beans"
   ],
   "result": {
     "id": "farmersdelight:hot_cocoa"

@@ -5,12 +5,8 @@
   "finished_bubble_color": 16711680,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_red",
   "ingredients": [
-    {
-      "tag": "c:crops/tomato"
-    },
-    {
-      "tag": "c:crops/tomato"
-    }
+    "#c:crops/tomato",
+    "#c:crops/tomato"
   ],
   "result": {
     "id": "farmersdelight:tomato_sauce"

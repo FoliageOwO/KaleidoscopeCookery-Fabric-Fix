@@ -5,18 +5,10 @@
   "finished_bubble_color": 2551400,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_orange",
   "ingredients": [
-    {
-      "tag": "c:pasta"
-    },
-    {
-      "tag": "c:cooked_eggs"
-    },
-    {
-      "item": "minecraft:dried_kelp"
-    },
-    {
-      "tag": "c:raw_pork"
-    }
+    "#c:pasta",
+    "#c:cooked_eggs",
+    "minecraft:dried_kelp",
+    "#c:raw_pork"
   ],
   "result": {
     "id": "farmersdelight:noodle_soup"

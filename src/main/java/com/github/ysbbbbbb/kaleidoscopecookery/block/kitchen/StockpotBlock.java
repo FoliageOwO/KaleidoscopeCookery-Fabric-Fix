@@ -10,10 +10,12 @@ import com.github.ysbbbbbb.kaleidoscopecookery.init.ModTrigger;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -23,6 +25,8 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
@@ -50,7 +54,7 @@ import java.util.List;
 
 @SuppressWarnings({"deprecation", "unchecked"})
 public class StockpotBlock extends HorizontalDirectionalBlock implements EntityBlock, SimpleWaterloggedBlock {
-    public static final MapCodec<StockpotBlock> CODEC = simpleCodec(p -> new StockpotBlock());
+    public static final MapCodec<StockpotBlock> CODEC = simpleCodec(StockpotBlock::new);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty HAS_LID = BooleanProperty.create("has_lid");
     public static final BooleanProperty HAS_BASE = BooleanProperty.create("has_base");
@@ -63,8 +67,8 @@ public class StockpotBlock extends HorizontalDirectionalBlock implements EntityB
             Block.box(2, 0, 2, 14, 9, 14),
             Block.box(1, 5, 1, 15, 7, 15));
 
-    public StockpotBlock() {
-        super(Properties.of()
+    public StockpotBlock(Properties properties) {
+        super(properties
                 .mapColor(MapColor.METAL)
                 .sound(ModSoundType.POT).noOcclusion()
                 .strength(1.5F, 6.0F));
@@ -81,96 +85,82 @@ public class StockpotBlock extends HorizontalDirectionalBlock implements EntityB
             BlockEntityType<A> serverType, BlockEntityType<E> clientType, BlockEntityTicker<? super E> ticker) {
         return clientType == serverType ? (BlockEntityTicker<A>) ticker : null;
     }
-
-    @Override
     protected @NotNull MapCodec<? extends HorizontalDirectionalBlock> codec() {
         return CODEC;
     }
-
-    @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         if (placer instanceof Player player && level.getBlockEntity(pos) instanceof IStockpot stockpot && stockpot.hasHeatSource(level)) {
             ModTrigger.EVENT.trigger(player, ModEventTriggerType.PLACE_STOCKPOT_ON_HEAT_SOURCE);
         }
     }
-
-    @Override
-    public @NotNull BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor levelAccessor, BlockPos pos, BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(BlockState state, LevelReader levelReader, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource randomSource) {
         if (state.getValue(WATERLOGGED)) {
-            levelAccessor.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
+            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(levelReader));
         }
 
         // 上方无法支撑，取消锁链
         // 下方无法支撑，添加基座
         if (direction == Direction.DOWN && !state.getValue(HAS_CHAINS)) {
-            return state.setValue(HAS_CHAINS, canSupportCenter(levelAccessor, pos.above(), Direction.DOWN))
-                    .setValue(HAS_BASE, !neighborState.isFaceSturdy(levelAccessor, neighborPos, Direction.UP));
+            return state.setValue(HAS_CHAINS, canSupportCenter(levelReader, pos.above(), Direction.DOWN))
+                    .setValue(HAS_BASE, !neighborState.isFaceSturdy(levelReader, neighborPos, Direction.UP));
         }
         if (direction == Direction.UP && !state.getValue(HAS_BASE)) {
-            BlockState belowState = levelAccessor.getBlockState(pos.below());
-            return state.setValue(HAS_CHAINS, canSupportCenter(levelAccessor, neighborPos, Direction.DOWN))
-                    .setValue(HAS_BASE, !belowState.isFaceSturdy(levelAccessor, pos.below(), Direction.UP));
+            BlockState belowState = levelReader.getBlockState(pos.below());
+            return state.setValue(HAS_CHAINS, canSupportCenter(levelReader, neighborPos, Direction.DOWN))
+                    .setValue(HAS_BASE, !belowState.isFaceSturdy(levelReader, pos.below(), Direction.UP));
         }
 
-        return super.updateShape(state, direction, neighborState, levelAccessor, pos, neighborPos);
+        return super.updateShape(state, levelReader, scheduledTickAccess, pos, direction, neighborPos, neighborState, randomSource);
     }
-
-    @Override
-    public @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public @NotNull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (hand != InteractionHand.MAIN_HAND) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (!(blockEntity instanceof IStockpot stockpot)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
         // 先检查盖子
         ItemStack mainHandItem = player.getMainHandItem();
         if (stockpot.onLitClick(level, player, mainHandItem)) {
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         // 加入汤底
         if (stockpot.addSoupBase(level, player, mainHandItem)) {
             ModTrigger.EVENT.trigger(player, ModEventTriggerType.PUT_SOUP_BASE_IN_STOCKPOT);
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         // 取出汤底
         if (stockpot.removeSoupBase(level, player, mainHandItem)) {
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         // 加入原料
         if (!mainHandItem.isEmpty() && stockpot.addIngredient(level, player, mainHandItem)) {
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         // 取出原料
         if (mainHandItem.isEmpty() && stockpot.removeIngredient(level, player)) {
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         // 取出成品
         if (stockpot.takeOutProduct(level, player, mainHandItem)) {
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
-
-    @Override
     @Nullable
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new StockpotBlockEntity(pos, state);
     }
-
-    @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return createTickerHelper(blockEntityType, ModBlocks.STOCKPOT_BE,
                     (lvl, blockPos, blockState, pot) -> pot.clientTick());
         }
         return createTickerHelper(blockEntityType, ModBlocks.STOCKPOT_BE,
                 (lvl, blockPos, blockState, pot) -> pot.tick(lvl));
     }
-
-    @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Level level = context.getLevel();
@@ -194,26 +184,18 @@ public class StockpotBlock extends HorizontalDirectionalBlock implements EntityB
         }
         return blockState;
     }
-
-    @Override
     public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, WATERLOGGED, HAS_LID, HAS_BASE, HAS_CHAINS);
     }
-
-    @Override
     public @NotNull VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
         if (state.getValue(HAS_LID)) {
             return AABB_WITH_LID;
         }
         return AABB;
     }
-
-    @Override
     public @NotNull List<ItemStack> getDrops(BlockState state, LootParams.Builder lootParamsBuilder) {
         List<ItemStack> drops = super.getDrops(state, lootParamsBuilder);
         if (state.getValue(HAS_LID)) {
@@ -234,9 +216,7 @@ public class StockpotBlock extends HorizontalDirectionalBlock implements EntityB
         }
         return drops;
     }
-
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.kaleidoscope_cookery.stockpot").withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("tooltip.kaleidoscope_cookery.stockpot.fail").withStyle(ChatFormatting.GRAY));
     }

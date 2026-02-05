@@ -1,3 +1,6 @@
 {
-  "parent": "kaleidoscope_cookery:item/cold_cut_ham_slices_block"
+  "parent": "kaleidoscope_cookery:item/cold_cut_ham_slices_block",
+  "textures": {
+    "particle": "kaleidoscope_cookery:block/cold_cut_ham_slices"
+  }
 }

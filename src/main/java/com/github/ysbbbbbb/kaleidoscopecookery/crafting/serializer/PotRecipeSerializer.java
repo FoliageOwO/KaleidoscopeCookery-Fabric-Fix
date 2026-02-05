@@ -16,11 +16,11 @@ public class PotRecipeSerializer implements RecipeSerializer<PotRecipe> {
             instance.group(
                     Codec.INT.optionalFieldOf("time", 200).forGetter(PotRecipe::time),
                     Codec.INT.optionalFieldOf("stir_fry_count", 3).forGetter(PotRecipe::stirFryCount),
-                    Ingredient.CODEC.optionalFieldOf("carrier", Ingredient.EMPTY).forGetter(PotRecipe::carrier),
+                    Ingredient.CODEC.optionalFieldOf("carrier").forGetter(PotRecipe::carrier),
                     Ingredient.CODEC.listOf().fieldOf("ingredients").xmap(
                             list -> list,
-                            list -> list.stream().filter(i -> !i.isEmpty()).toList()
-                    ).forGetter(recipe -> recipe.ingredients().stream().toList()),
+                            list -> list
+                    ).forGetter(PotRecipe::ingredients),
                     ItemStack.CODEC.fieldOf("result").forGetter(PotRecipe::result)
             ).apply(instance, PotRecipe::new)
     );
@@ -28,7 +28,7 @@ public class PotRecipeSerializer implements RecipeSerializer<PotRecipe> {
     public static final StreamCodec<RegistryFriendlyByteBuf, PotRecipe> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, PotRecipe::time,
             ByteBufCodecs.INT, PotRecipe::stirFryCount,
-            Ingredient.CONTENTS_STREAM_CODEC, PotRecipe::carrier,
+            Ingredient.OPTIONAL_CONTENTS_STREAM_CODEC, PotRecipe::carrier,
             Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), PotRecipe::ingredients,
             ItemStack.STREAM_CODEC, PotRecipe::result,
             PotRecipe::new);

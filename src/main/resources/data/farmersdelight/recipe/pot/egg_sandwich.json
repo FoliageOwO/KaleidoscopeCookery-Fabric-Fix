@@ -1,15 +1,9 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "item": "minecraft:bread"
-  },
+  "carrier": "minecraft:bread",
   "ingredients": [
-    {
-      "tag": "c:eggs"
-    },
-    {
-      "tag": "c:eggs"
-    }
+    "#c:eggs",
+    "#c:eggs"
   ],
   "result": {
     "id": "farmersdelight:egg_sandwich"

@@ -5,12 +5,12 @@ import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.BaseBlockEntity;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModBlocks;
 import com.github.ysbbbbbb.kaleidoscopecookery.util.ItemUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class KitchenwareRacksBlockEntity extends BaseBlockEntity implements IKitchenwareRacks {
     private static final String LEFT_ITEM = "LeftItem";
@@ -53,17 +53,17 @@ public class KitchenwareRacksBlockEntity extends BaseBlockEntity implements IKit
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put(LEFT_ITEM, itemLeft.saveOptional(registries));
-        tag.put(RIGHT_ITEM, itemRight.saveOptional(registries));
+    protected void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        tag.store(LEFT_ITEM, ItemStack.OPTIONAL_CODEC, itemLeft);
+        tag.store(RIGHT_ITEM, ItemStack.OPTIONAL_CODEC, itemRight);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.itemLeft = ItemStack.parseOptional(registries, tag.getCompound(LEFT_ITEM));
-        this.itemRight = ItemStack.parseOptional(registries, tag.getCompound(RIGHT_ITEM));
+    protected void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        this.itemLeft = tag.read(LEFT_ITEM, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+        this.itemRight = tag.read(RIGHT_ITEM, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
     }
 
     @Override

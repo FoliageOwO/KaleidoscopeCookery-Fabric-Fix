@@ -5,6 +5,7 @@ import com.github.ysbbbbbb.kaleidoscopecookery.item.FlourItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -23,8 +24,9 @@ public abstract class LayeredCauldronBlockMixin extends AbstractCauldronBlock {
     }
     
     @Inject(method = "entityInside", at = @At("TAIL"))
-    private void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, CallbackInfo ci) {
-        if (!level.isClientSide && entity instanceof ItemEntity itemEntity && itemEntity.getItem().getItem() instanceof FlourItem && this.isEntityInsideContent(state, pos, entity)) {
+    private void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier insideBlockEffectApplier, boolean fireFluidEffects, CallbackInfo ci) {
+        double contentHeight = pos.getY() + this.getContentHeight(state);
+        if (!level.isClientSide() && entity instanceof ItemEntity itemEntity && itemEntity.getItem().getItem() instanceof FlourItem && entity.getY() <= contentHeight) {
             itemEntity.setItem(new ItemStack(ModItems.RAW_DOUGH, itemEntity.getItem().getCount()));
         }
     }

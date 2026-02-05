@@ -7,7 +7,7 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -82,7 +82,7 @@ public class PotRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    public PotRecipeBuilder setResult(ResourceLocation result) {
+    public PotRecipeBuilder setResult(Identifier result) {
         this.result = new ItemStack(Objects.requireNonNull(BuiltInRegistries.ITEM.get(result)));
         return this;
     }
@@ -92,7 +92,7 @@ public class PotRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    public PotRecipeBuilder setResult(ResourceLocation result, int count) {
+    public PotRecipeBuilder setResult(Identifier result, int count) {
         this.result = new ItemStack(Objects.requireNonNull(BuiltInRegistries.ITEM.get(result)), count);
         return this;
     }
@@ -120,18 +120,18 @@ public class PotRecipeBuilder implements RecipeBuilder {
     @Override
     public void save(RecipeOutput output) {
         String path = RecipeBuilder.getDefaultRecipeId(this.getResult()).getPath();
-        ResourceLocation filePath = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + path);
+        Identifier filePath = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + path);
         this.save(output, filePath);
     }
 
     @Override
     public void save(RecipeOutput output, String recipeId) {
-        ResourceLocation filePath = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + recipeId);
+        Identifier filePath = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + recipeId);
         this.save(output, filePath);
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput, ResourceLocation id) {
+    public void save(RecipeOutput recipeOutput, Identifier id) {
         recipeOutput.accept(id, new PotRecipe(this.time, this.stirFryCount, this.carrier, this.ingredients, this.result), null);
     }
 }

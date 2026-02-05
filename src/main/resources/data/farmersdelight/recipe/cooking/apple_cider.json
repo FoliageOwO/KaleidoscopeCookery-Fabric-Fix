@@ -5,15 +5,9 @@
   "finished_bubble_color": 2551400,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_orange",
   "ingredients": [
-    {
-      "item": "minecraft:apple"
-    },
-    {
-      "item": "minecraft:apple"
-    },
-    {
-      "item": "minecraft:sugar"
-    }
+    "minecraft:apple",
+    "minecraft:apple",
+    "minecraft:sugar"
   ],
   "result": {
     "id": "farmersdelight:apple_cider"

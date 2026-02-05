@@ -8,16 +8,16 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -28,18 +28,18 @@ import java.util.function.BiFunction;
 
 @Environment(EnvType.CLIENT)
 public class TableBlockEntityRender implements BlockEntityRenderer<TableBlockEntity> {
-    private static final BiFunction<DyeColor, Integer, ResourceLocation> CACHE_MODEL = Util.memoize((color, position) -> {
+    private static final BiFunction<DyeColor, Integer, Identifier> CACHE_MODEL = Util.memoize((color, position) -> {
         String name = color.getName();
         if (position == TableBlock.SINGLE) {
-            return ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/table/" + name + "_single");
+            return Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/table/" + name + "_single");
         }
         if (position == TableBlock.MIDDLE) {
-            return ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/table/" + name + "_middle");
+            return Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/table/" + name + "_middle");
         }
         if (position == TableBlock.LEFT) {
-            return ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/table/" + name + "_left");
+            return Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/table/" + name + "_left");
         }
-        return ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/table/" + name + "_right");
+        return Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/table/" + name + "_right");
     });
 
     private final BlockEntityRendererProvider.Context context;
@@ -57,7 +57,7 @@ public class TableBlockEntityRender implements BlockEntityRenderer<TableBlockEnt
 
         if (blockState.getValue(TableBlock.HAS_CARPET)) {
             int position = blockState.getValue(TableBlock.POSITION);
-            ResourceLocation cacheModel = CACHE_MODEL.apply(table.getColor(), position);
+            Identifier cacheModel = CACHE_MODEL.apply(table.getColor(), position);
             int rotation = axis == Direction.Axis.X ? 180 : 270;
             poseStack.pushPose();
             poseStack.translate(0.5, 0, 0.5);

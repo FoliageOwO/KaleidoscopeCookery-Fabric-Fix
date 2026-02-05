@@ -5,18 +5,10 @@
   "finished_bubble_color": 16777215,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_white",
   "ingredients": [
-    {
-      "tag": "c:raw_chicken"
-    },
-    {
-      "item": "minecraft:carrot"
-    },
-    {
-      "tag": "c:crops/cabbage"
-    },
-    {
-      "tag": "c:crops"
-    }
+    "#c:raw_chicken",
+    "minecraft:carrot",
+    "#c:crops/cabbage",
+    "#c:crops"
   ],
   "result": {
     "id": "farmersdelight:chicken_soup"

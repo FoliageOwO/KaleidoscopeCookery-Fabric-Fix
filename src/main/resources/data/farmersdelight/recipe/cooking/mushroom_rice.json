@@ -5,18 +5,10 @@
   "finished_bubble_color": 193154107,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_light_brown",
   "ingredients": [
-    {
-      "item": "minecraft:brown_mushroom"
-    },
-    {
-      "item": "minecraft:red_mushroom"
-    },
-    {
-      "tag": "c:crops/rice"
-    },
-    {
-      "item": "minecraft:potato"
-    }
+    "minecraft:brown_mushroom",
+    "minecraft:red_mushroom",
+    "#c:crops/rice",
+    "minecraft:potato"
   ],
   "result": {
     "id": "farmersdelight:mushroom_rice"

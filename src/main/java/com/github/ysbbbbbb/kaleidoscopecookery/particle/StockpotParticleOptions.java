@@ -9,6 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ExtraCodecs;
+import org.joml.Vector3fc;
 import org.joml.Vector3f;
 
 @SuppressWarnings("deprecation")
@@ -24,14 +25,14 @@ public class StockpotParticleOptions extends ScalableParticleOptionsBase {
             StockpotParticleOptions::new
     );
 
-    private final Vector3f color;
+    private final Vector3fc color;
 
-    public StockpotParticleOptions(Vector3f color, float scale) {
+    public StockpotParticleOptions(Vector3fc color, float scale) {
         super(scale);
         this.color = color;
     }
 
-    public Vector3f getColor() {
+    public Vector3fc getColor() {
         return this.color;
     }
 

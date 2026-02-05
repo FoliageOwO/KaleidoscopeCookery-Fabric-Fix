@@ -3,8 +3,8 @@ package com.github.ysbbbbbb.kaleidoscopecookery.init;
 import com.github.ysbbbbbb.kaleidoscopecookery.KaleidoscopeCookery;
 import com.github.ysbbbbbb.kaleidoscopecookery.advancements.critereon.ModEventTrigger;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.critereon.DistanceTrigger;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.criterion.DistanceTrigger;
+import net.minecraft.resources.Identifier;
 
 public class ModTrigger {
     public static ModEventTrigger EVENT;
@@ -16,6 +16,6 @@ public class ModTrigger {
     }
 
     private static String modLoc(String id) {
-        return ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, id).toString();
+        return Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, id).toString();
     }
 }

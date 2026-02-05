@@ -1,33 +1,15 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "item": "minecraft:bowl"
-  },
+  "carrier": "minecraft:bowl",
   "ingredients": [
-    {
-      "item": "minecraft:potato"
-    },
-    {
-      "item": "minecraft:potato"
-    },
-    {
-      "tag": "c:milk"
-    },
-    {
-      "tag": "c:raw_mutton"
-    },
-    {
-      "tag": "c:raw_mutton"
-    },
-    {
-      "tag": "c:raw_mutton"
-    },
-    {
-      "tag": "c:crops/onion"
-    },
-    {
-      "tag": "c:crops/onion"
-    }
+    "minecraft:potato",
+    "minecraft:potato",
+    "#c:milk",
+    "#c:raw_mutton",
+    "#c:raw_mutton",
+    "#c:raw_mutton",
+    "#c:crops/onion",
+    "#c:crops/onion"
   ],
   "result": {
     "id": "farmersdelight:shepherds_pie_block"

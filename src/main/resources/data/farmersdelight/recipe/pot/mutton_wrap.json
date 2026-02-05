@@ -1,18 +1,10 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "item": "minecraft:bread"
-  },
+  "carrier": "minecraft:bread",
   "ingredients": [
-    {
-      "tag": "c:raw_mutton"
-    },
-    {
-      "item": "farmersdelight:cabbage"
-    },
-    {
-      "item": "farmersdelight:onion"
-    }
+    "#c:raw_mutton",
+    "farmersdelight:cabbage",
+    "farmersdelight:onion"
   ],
   "result": {
     "id": "farmersdelight:cooked_mutton_chops"

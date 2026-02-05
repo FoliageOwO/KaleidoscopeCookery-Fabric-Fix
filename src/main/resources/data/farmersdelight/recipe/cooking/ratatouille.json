@@ -5,18 +5,10 @@
   "finished_bubble_color": 193154107,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_dark_green",
   "ingredients": [
-    {
-      "tag": "c:crops/tomato"
-    },
-    {
-      "tag": "c:crops/onion"
-    },
-    {
-      "item": "minecraft:beetroot"
-    },
-    {
-      "tag": "c:crops"
-    }
+    "#c:crops/tomato",
+    "#c:crops/onion",
+    "minecraft:beetroot",
+    "#c:crops"
   ],
   "result": {
     "id": "farmersdelight:ratatouille"

@@ -1,21 +1,11 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "item": "minecraft:bread"
-  },
+  "carrier": "minecraft:bread",
   "ingredients": [
-    {
-      "item": "farmersdelight:minced_beef"
-    },
-    {
-      "tag": "c:crops/cabbage"
-    },
-    {
-      "tag": "c:crops/tomato"
-    },
-    {
-      "tag": "c:crops/onion"
-    }
+    "farmersdelight:minced_beef",
+    "#c:crops/cabbage",
+    "#c:crops/tomato",
+    "#c:crops/onion"
   ],
   "result": {
     "id": "farmersdelight:hamburger"

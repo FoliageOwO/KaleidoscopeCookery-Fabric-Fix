@@ -5,15 +5,9 @@
   "finished_bubble_color": 16777215,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_white",
   "ingredients": [
-    {
-      "item": "minecraft:potato"
-    },
-    {
-      "tag": "c:eggs"
-    },
-    {
-      "tag": "c:crops/tomato"
-    }
+    "minecraft:potato",
+    "#c:eggs",
+    "#c:crops/tomato"
   ],
   "result": {
     "id": "farmersdelight:baked_cod_stew"

@@ -11,15 +11,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
 public class StrawHatArmorRenderer implements ArmorRenderer {
-    private static final ResourceLocation NORMAL = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/models/armor/straw_hat.png");
-    private static final ResourceLocation FLOWER = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/models/armor/straw_hat_flower.png");
+    private static final Identifier NORMAL = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/models/armor/straw_hat.png");
+    private static final Identifier FLOWER = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/models/armor/straw_hat_flower.png");
     private StrawHatModel cachedModel = null;
 
     @Override
@@ -29,12 +29,12 @@ public class StrawHatArmorRenderer implements ArmorRenderer {
             cachedModel = new StrawHatModel(Minecraft.getInstance().getEntityModels().bakeLayer(StrawHatModel.LAYER_LOCATION));
         }
         ModelPart head = cachedModel.getHead();
-        ResourceLocation texture = getArmorTexture(stack);
+        Identifier texture = getArmorTexture(stack);
         head.copyFrom(contextModel.head);
         ArmorRenderer.renderPart(matrices, vertexConsumers, light, stack, cachedModel, texture);
     }
 
-    public ResourceLocation getArmorTexture(ItemStack stack) {
+    public Identifier getArmorTexture(ItemStack stack) {
         if (stack.getItem() instanceof StrawHatItem hatItem && hatItem.hasFlower()) {
             return FLOWER;
         }

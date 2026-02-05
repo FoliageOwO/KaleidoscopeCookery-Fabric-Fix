@@ -3,10 +3,10 @@ package com.github.ysbbbbbb.kaleidoscopecookery.blockentity.decoration;
 import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.BaseBlockEntity;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class ChairBlockEntity extends BaseBlockEntity {
     private static final String COLOR_TAG = "CarpetColor";
@@ -17,15 +17,15 @@ public class ChairBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         tag.putInt(COLOR_TAG, this.color.getId());
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        this.color = DyeColor.byId(tag.getInt(COLOR_TAG));
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        this.color = DyeColor.byId(tag.getIntOr(COLOR_TAG, DyeColor.WHITE.getId()));
     }
 
     public DyeColor getColor() {

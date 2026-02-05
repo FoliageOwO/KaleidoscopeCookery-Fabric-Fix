@@ -1,8 +1,6 @@
 {
   "type": "kaleidoscope_cookery:millstone",
-  "ingredient": {
-    "item": "minecraft:redstone_ore"
-  },
+  "ingredient": "minecraft:redstone_ore",
   "result": {
     "count": 7,
     "id": "minecraft:redstone"

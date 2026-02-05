@@ -1,21 +1,11 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "item": "minecraft:bowl"
-  },
+  "carrier": "minecraft:bowl",
   "ingredients": [
-    {
-      "tag": "c:raw_fishes/salmon"
-    },
-    {
-      "item": "minecraft:sweet_berries"
-    },
-    {
-      "tag": "c:crops/cabbage"
-    },
-    {
-      "tag": "c:crops/onion"
-    }
+    "#c:raw_fishes/salmon",
+    "minecraft:sweet_berries",
+    "#c:crops/cabbage",
+    "#c:crops/onion"
   ],
   "result": {
     "id": "farmersdelight:grilled_salmon"

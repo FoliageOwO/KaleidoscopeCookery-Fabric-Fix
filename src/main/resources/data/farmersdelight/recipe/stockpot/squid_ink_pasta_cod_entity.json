@@ -5,15 +5,9 @@
   "finished_bubble_color": 15232152,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_light_purple",
   "ingredients": [
-    {
-      "tag": "c:pasta"
-    },
-    {
-      "tag": "c:crops/tomato"
-    },
-    {
-      "item": "minecraft:ink_sac"
-    }
+    "#c:pasta",
+    "#c:crops/tomato",
+    "minecraft:ink_sac"
   ],
   "result": {
     "id": "farmersdelight:squid_ink_pasta"

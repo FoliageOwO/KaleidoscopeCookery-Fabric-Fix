@@ -7,12 +7,9 @@ import com.github.ysbbbbbb.kaleidoscopecookery.init.ModBlocks;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModRecipes;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.tag.TagMod;
 import com.github.ysbbbbbb.kaleidoscopecookery.util.ItemUtils;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -25,6 +22,8 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -38,12 +37,12 @@ public class ChoppingBoardBlockEntity extends BaseBlockEntity implements IChoppi
     /**
      * 仅用于客户端渲染
      */
-    public @Nullable ResourceLocation[] cacheModels = null;
-    public @Nullable ResourceLocation previousModel = null;
+    public @Nullable Identifier[] cacheModels = null;
+    public @Nullable Identifier previousModel = null;
     /**
      * 服务端客户端共通数据
      */
-    private @Nullable ResourceLocation modelId = null;
+    private @Nullable Identifier modelId = null;
     private int maxCutCount = 0;
     private int currentCutCount = 0;
     private ItemStack currentCutStack = ItemStack.EMPTY;
@@ -54,7 +53,7 @@ public class ChoppingBoardBlockEntity extends BaseBlockEntity implements IChoppi
     }
 
     public static void popResource(Level level, BlockPos pos, ItemStack stack) {
-        if (!level.isClientSide && !stack.isEmpty()) {
+        if (!level.isClientSide() && !stack.isEmpty()) {
             ItemEntity entity = new ItemEntity(level,
                     pos.getX() + 0.5,
                     pos.getY() + 0.25,
@@ -71,8 +70,10 @@ public class ChoppingBoardBlockEntity extends BaseBlockEntity implements IChoppi
             return false;
         }
         SingleRecipeInput container = new SingleRecipeInput(putOnItem);
-        Optional<RecipeHolder<ChoppingBoardRecipe>> recipeOptional = level.getRecipeManager()
-                .getRecipeFor(ModRecipes.CHOPPING_BOARD_RECIPE, container, level);
+        Optional<RecipeHolder<ChoppingBoardRecipe>> recipeOptional = Optional.empty();
+        if (level.getServer() != null) {
+            recipeOptional = level.getServer().getRecipeManager().getRecipeFor(ModRecipes.CHOPPING_BOARD_RECIPE, container, level);
+        }
         if (recipeOptional.isPresent()) {
             ChoppingBoardRecipe recipe = recipeOptional.get().value();
             this.modelId = recipe.getModelId();
@@ -159,35 +160,31 @@ public class ChoppingBoardBlockEntity extends BaseBlockEntity implements IChoppi
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         if (this.modelId != null) {
             tag.putString(MODEL_ID, this.modelId.toString());
         }
         tag.putInt(MAX_CUT_COUNT, this.maxCutCount);
         tag.putInt(CURRENT_CUT_COUNT, this.currentCutCount);
-        tag.put(CURRENT_CUT_STACK, this.currentCutStack.saveOptional(registries));
-        tag.put(RESULT_ITEM, this.result.saveOptional(registries));
+        tag.store(CURRENT_CUT_STACK, ItemStack.OPTIONAL_CODEC, this.currentCutStack);
+        tag.store(RESULT_ITEM, ItemStack.OPTIONAL_CODEC, this.result);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains(MODEL_ID)) {
-            this.modelId = ResourceLocation.parse(tag.getString(MODEL_ID));
+    protected void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        if (tag.getString(MODEL_ID).isPresent()) {
+            this.modelId = Identifier.parse(tag.getStringOr(MODEL_ID, ""));
         }
-        this.maxCutCount = tag.getInt(MAX_CUT_COUNT);
-        this.currentCutCount = tag.getInt(CURRENT_CUT_COUNT);
-        if (tag.contains(CURRENT_CUT_STACK)) {
-            this.currentCutStack = ItemStack.parseOptional(registries, tag.getCompound(CURRENT_CUT_STACK));
-        }
-        if (tag.contains(RESULT_ITEM)) {
-            this.result = ItemStack.parseOptional(registries, tag.getCompound(RESULT_ITEM));
-        }
+        this.maxCutCount = tag.getIntOr(MAX_CUT_COUNT, 0);
+        this.currentCutCount = tag.getIntOr(CURRENT_CUT_COUNT, 0);
+        this.currentCutStack = tag.read(CURRENT_CUT_STACK, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+        this.result = tag.read(RESULT_ITEM, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
     }
 
     @Nullable
-    public ResourceLocation getModelId() {
+    public Identifier getModelId() {
         return modelId;
     }
 

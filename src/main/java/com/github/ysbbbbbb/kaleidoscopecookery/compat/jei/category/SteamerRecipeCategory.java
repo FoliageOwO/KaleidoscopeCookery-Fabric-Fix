@@ -18,7 +18,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -27,9 +27,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class SteamerRecipeCategory implements IRecipeCategory<RecipeHolder<SteamerRecipe>> {
-    public static final RecipeType<RecipeHolder<SteamerRecipe>> TYPE = RecipeType.createRecipeHolderType(ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "steamer"));
+    public static final RecipeType<RecipeHolder<SteamerRecipe>> TYPE = RecipeType.createRecipeHolderType(Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "steamer"));
 
-    private static final ResourceLocation BG = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/gui/jei/steamer.png");
+    private static final Identifier BG = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/gui/jei/steamer.png");
     private static final MutableComponent TITLE = Component.translatable("block.kaleidoscope_cookery.steamer");
 
     public static final int WIDTH = 176;

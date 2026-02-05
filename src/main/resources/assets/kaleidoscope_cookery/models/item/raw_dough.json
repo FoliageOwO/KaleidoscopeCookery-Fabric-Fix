@@ -30,5 +30,6 @@
         "kaleidoscope_cookery:pull": 3.0
       }
     }
-  ]
+  ],
+  "parent": "kaleidoscope_cookery:item/raw_dough_0"
 }

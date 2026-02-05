@@ -8,14 +8,14 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -24,8 +24,8 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import java.util.function.Function;
 @Environment(EnvType.CLIENT)
 public class ChairBlockEntityRender implements BlockEntityRenderer<ChairBlockEntity> {
-    private static final Function<DyeColor, ResourceLocation> CACHE_MODEL = Util.memoize(color ->
-            ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/chair/" + color.getName()));
+    private static final Function<DyeColor, Identifier> CACHE_MODEL = Util.memoize(color ->
+            Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/chair/" + color.getName()));
 
     private final BlockEntityRendererProvider.Context context;
 
@@ -38,7 +38,7 @@ public class ChairBlockEntityRender implements BlockEntityRenderer<ChairBlockEnt
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
         if (chair.getBlockState().getValue(ChairBlock.HAS_CARPET)) {
             ItemRenderer itemRenderer = this.context.getItemRenderer();
-            ResourceLocation cacheModel = CACHE_MODEL.apply(chair.getColor());
+            Identifier cacheModel = CACHE_MODEL.apply(chair.getColor());
 
             poseStack.pushPose();
             int rotation = chair.getBlockState().getValue(HorizontalDirectionalBlock.FACING).getOpposite().get2DDataValue();

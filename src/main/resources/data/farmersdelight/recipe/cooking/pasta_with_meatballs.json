@@ -5,15 +5,9 @@
   "finished_bubble_color": 16711680,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_red",
   "ingredients": [
-    {
-      "item": "farmersdelight:minced_beef"
-    },
-    {
-      "tag": "c:pasta"
-    },
-    {
-      "item": "farmersdelight:tomato_sauce"
-    }
+    "farmersdelight:minced_beef",
+    "#c:pasta",
+    "farmersdelight:tomato_sauce"
   ],
   "result": {
     "id": "farmersdelight:pasta_with_meatballs"

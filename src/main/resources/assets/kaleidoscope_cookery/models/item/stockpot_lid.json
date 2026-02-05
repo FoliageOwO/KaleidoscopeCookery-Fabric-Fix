@@ -12,5 +12,6 @@
         "kaleidoscope_cookery:using": 1.0
       }
     }
-  ]
+  ],
+  "parent": "kaleidoscope_cookery:item/stockpot_lid_normal"
 }

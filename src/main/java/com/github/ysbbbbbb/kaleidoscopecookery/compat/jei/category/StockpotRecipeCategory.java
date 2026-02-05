@@ -22,7 +22,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -33,8 +33,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class StockpotRecipeCategory implements IRecipeCategory<RecipeHolder<StockpotRecipe>> {
-    public static final RecipeType<RecipeHolder<StockpotRecipe>> TYPE = RecipeType.createRecipeHolderType(ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "stockpot"));
-    private static final ResourceLocation BG = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/gui/jei/stockpot.png");
+    public static final RecipeType<RecipeHolder<StockpotRecipe>> TYPE = RecipeType.createRecipeHolderType(Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "stockpot"));
+    private static final Identifier BG = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/gui/jei/stockpot.png");
     private static final MutableComponent TITLE = Component.translatable("block.kaleidoscope_cookery.stockpot");
     public static final int WIDTH = 176;
     public static final int HEIGHT = 102;

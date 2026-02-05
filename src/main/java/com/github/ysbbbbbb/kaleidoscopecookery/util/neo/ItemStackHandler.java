@@ -133,7 +133,8 @@ public class ItemStackHandler implements IItemHandler {
             if (!((ItemStack)this.stacks.get(i)).isEmpty()) {
                 CompoundTag itemTag = new CompoundTag();
                 itemTag.putInt("Slot", i);
-                nbtTagList.add(((ItemStack)this.stacks.get(i)).save(provider, itemTag));
+                itemTag.store("Stack", ItemStack.OPTIONAL_CODEC, this.stacks.get(i));
+                nbtTagList.add(itemTag);
             }
         }
 
@@ -144,14 +145,14 @@ public class ItemStackHandler implements IItemHandler {
     }
 
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        this.setSize(nbt.contains("Size", 3) ? nbt.getInt("Size") : this.stacks.size());
-        ListTag tagList = nbt.getList("Items", 10);
+        this.setSize(nbt.contains("Size") ? nbt.getIntOr("Size", this.stacks.size()) : this.stacks.size());
+        ListTag tagList = nbt.getListOrEmpty("Items");
 
         for(int i = 0; i < tagList.size(); ++i) {
-            CompoundTag itemTags = tagList.getCompound(i);
-            int slot = itemTags.getInt("Slot");
+            CompoundTag itemTags = tagList.getCompoundOrEmpty(i);
+            int slot = itemTags.getIntOr("Slot", -1);
             if (slot >= 0 && slot < this.stacks.size()) {
-                ItemStack.parse(provider, itemTags).ifPresent((stack) -> this.stacks.set(slot, stack));
+                itemTags.read("Stack", ItemStack.OPTIONAL_CODEC).ifPresent((stack) -> this.stacks.set(slot, stack));
             }
         }
 

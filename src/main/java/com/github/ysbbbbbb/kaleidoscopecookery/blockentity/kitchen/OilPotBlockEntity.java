@@ -8,8 +8,6 @@ import com.github.ysbbbbbb.kaleidoscopecookery.inventory.itemhandler.OilPotHandl
 import com.github.ysbbbbbb.kaleidoscopecookery.util.neo.IItemHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
@@ -17,6 +15,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ComposterBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,17 +33,15 @@ public class OilPotBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
         tag.putInt(OIL_COUNT, oilCount);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.contains(OIL_COUNT)) {
-            this.oilCount = tag.getInt(OIL_COUNT);
-        }
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        this.oilCount = tag.getIntOr(OIL_COUNT, 0);
     }
 
     public int getOilCount() {

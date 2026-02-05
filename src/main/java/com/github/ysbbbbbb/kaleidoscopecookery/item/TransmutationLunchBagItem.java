@@ -21,12 +21,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -50,15 +50,15 @@ import java.util.Optional;
 import java.util.Random;
 
 public class TransmutationLunchBagItem extends Item {
-    public static final ResourceLocation HAS_ITEMS_PROPERTY = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "has_items");
+    public static final Identifier HAS_ITEMS_PROPERTY = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "has_items");
     public static final int NO_ITEMS = 0;
     public static final int HAS_ITEMS = 1;
 
     private static final int MAX_SIZE = 16;
     private static final String TAG_ITEMS = "Items";
 
-    public TransmutationLunchBagItem() {
-        super((new Item.Properties()).stacksTo(1));
+    public TransmutationLunchBagItem(Item.Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     @Environment(EnvType.CLIENT)
@@ -96,8 +96,6 @@ public class TransmutationLunchBagItem extends Item {
             bag.set(ModDataComponents.TRANSMUTATION_LUNCH_BAG_ITEMS, ItemContainer.of(items));
         }
     }
-
-    @Override
     public @NotNull InteractionResult useOn(UseOnContext context) {
         BlockEntity blockEntity = context.getLevel().getBlockEntity(context.getClickedPos());
         if (!(blockEntity instanceof FruitBasketBlockEntity fruitBasket)) {
@@ -132,7 +130,7 @@ public class TransmutationLunchBagItem extends Item {
             TransmutationLunchBagItem.setItems(bag, bagItems);
             fruitBasket.refresh();
             playRemoveOneSound(player);
-            return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         // 果篮不为空，尝试取出物品
@@ -146,11 +144,9 @@ public class TransmutationLunchBagItem extends Item {
         TransmutationLunchBagItem.setItems(bag, bagItems);
         fruitBasket.refresh();
         playDropContentsSound(player);
-        return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
+        return InteractionResult.SUCCESS;
     }
-
-    @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public @NotNull InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
         // 里面有物品
         if (hasItems(itemInHand)) {
@@ -165,20 +161,18 @@ public class TransmutationLunchBagItem extends Item {
             }
             if (hasFood) {
                 player.startUsingItem(hand);
-                return InteractionResultHolder.consume(itemInHand);
+                return InteractionResult.CONSUME.heldItemTransformedTo(itemInHand);
             }
         }
 
-        return InteractionResultHolder.fail(itemInHand);
+        return InteractionResult.FAIL;
     }
-
-    @Override
     public @NotNull ItemStack finishUsingItem(ItemStack bag, Level level, LivingEntity entity) {
         if (!hasItems(bag)) {
             return bag;
         }
         ItemStack food = ItemStack.EMPTY;
-        List<List<FoodProperties.PossibleEffect>> effects = Lists.newArrayList();
+        List<List<MobEffectInstance>> effects = Lists.newArrayList();
 
         ItemStackHandler items = getItems(bag);
         for (int i = 0; i < items.getSlots(); i++) {
@@ -192,8 +186,7 @@ public class TransmutationLunchBagItem extends Item {
             if (foodProperties != null) {
                 // 第一个食物的效果不加入其中，避免重复
                 if (!food.isEmpty()) {
-                    List<FoodProperties.PossibleEffect> foodEffects = foodProperties.effects();
-                    effects.add(foodEffects);
+                    effects.add(List.of());
                 } else {
                     food = items.extractItem(i, 1, false);
                 }
@@ -205,8 +198,8 @@ public class TransmutationLunchBagItem extends Item {
             if (potionContents != null) {
                 // 第一个药水的效果不加入其中，避免重复
                 if (!food.isEmpty()) {
-                    List<FoodProperties.PossibleEffect> potionEffects = Lists.newArrayList();
-                    potionContents.forEachEffect(e -> potionEffects.add(new FoodProperties.PossibleEffect(e, 1F)));
+                    List<MobEffectInstance> potionEffects = Lists.newArrayList();
+                    potionContents.forEachEffect(potionEffects::add, 1.0F);
                     effects.add(potionEffects);
                 } else {
                     food = items.extractItem(i, 1, false);
@@ -235,12 +228,12 @@ public class TransmutationLunchBagItem extends Item {
             Collections.shuffle(effects, new Random());
             int effectsToApply = Math.min(3, effects.size());
             for (int i = 0; i < effectsToApply; i++) {
-                List<FoodProperties.PossibleEffect> selected = effects.get(i);
-                for (FoodProperties.PossibleEffect effect : selected) {
-                    if (level.isClientSide || effect.probability() <= 0.0F || level.random.nextFloat() >= effect.probability()) {
+                List<MobEffectInstance> selected = effects.get(i);
+                for (MobEffectInstance effect : selected) {
+                    if (level.isClientSide()) {
                         continue;
                     }
-                    entity.addEffect(new MobEffectInstance(effect.effect()));
+                    entity.addEffect(effect);
                     hasExtraEffects = true;
                 }
             }
@@ -273,18 +266,12 @@ public class TransmutationLunchBagItem extends Item {
 
         return bag;
     }
-
-    @Override
-    public @NotNull UseAnim getUseAnimation(ItemStack stack) {
-        return hasItems(stack) ? UseAnim.EAT : UseAnim.NONE;
+    public @NotNull ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return hasItems(stack) ? ItemUseAnimation.EAT : ItemUseAnimation.NONE;
     }
-
-    @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
         return 32;
     }
-
-    @Override
     public boolean overrideStackedOnOther(ItemStack bag, Slot slot, ClickAction action, Player player) {
         if (bag.getCount() != 1 || action != ClickAction.SECONDARY) {
             return false;
@@ -307,8 +294,6 @@ public class TransmutationLunchBagItem extends Item {
         }
         return true;
     }
-
-    @Override
     public boolean overrideOtherStackedOnMe(ItemStack bag, ItemStack other, Slot slot, ClickAction action, Player
             player, SlotAccess access) {
         if (bag.getCount() != 1) {
@@ -409,8 +394,6 @@ public class TransmutationLunchBagItem extends Item {
     public void playDropContentsSound(Entity pEntity) {
         pEntity.playSound(SoundEvents.BUNDLE_DROP_CONTENTS, 0.8F, 0.8F + pEntity.level().getRandom().nextFloat() * 0.4F);
     }
-
-    @Override
     public @NotNull Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         if (!hasItems(stack)) {
             return Optional.empty();
@@ -418,10 +401,8 @@ public class TransmutationLunchBagItem extends Item {
         ItemStackHandler items = getItems(stack);
         return Optional.of(new ItemContainerTooltip(items));
     }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.kaleidoscope_cookery.transmutation_lunch_bag").withStyle(ChatFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, java.util.function.Consumer<Component> tooltip, TooltipFlag flag) {
+        tooltip.accept(Component.translatable("tooltip.kaleidoscope_cookery.transmutation_lunch_bag").withStyle(ChatFormatting.GRAY));
     }
 
     public record ItemContainer(ItemStackHandler items) {
@@ -452,7 +433,6 @@ public class TransmutationLunchBagItem extends Item {
         );
 
         public static final StreamCodec<RegistryFriendlyByteBuf, TransmutationLunchBagItem.ItemContainer> STREAM_CODEC = new StreamCodec<>() {
-            @Override
             public TransmutationLunchBagItem.@NotNull ItemContainer decode(RegistryFriendlyByteBuf buffer) {
                 CompoundTag compoundTag = buffer.readNbt();
                 ItemStackHandler handler = new ItemStackHandler(MAX_SIZE);
@@ -461,8 +441,6 @@ public class TransmutationLunchBagItem extends Item {
                 }
                 return new TransmutationLunchBagItem.ItemContainer(handler);
             }
-
-            @Override
             public void encode(RegistryFriendlyByteBuf buffer, TransmutationLunchBagItem.ItemContainer value) {
                 CompoundTag compoundTag = value.items().serializeNBT(buffer.registryAccess());
                 buffer.writeNbt(compoundTag);

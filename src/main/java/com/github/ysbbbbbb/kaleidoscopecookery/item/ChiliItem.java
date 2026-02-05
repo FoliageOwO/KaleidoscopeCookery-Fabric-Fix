@@ -9,8 +9,8 @@ import net.minecraft.world.level.Level;
 public class ChiliItem extends Item {
     private final int damage;
 
-    public ChiliItem(int damage) {
-        super(new Properties().food(ModFoods.CHILI));
+    public ChiliItem(int damage, Properties properties) {
+        super(properties.food(ModFoods.CHILI));
         this.damage = damage;
     }
 

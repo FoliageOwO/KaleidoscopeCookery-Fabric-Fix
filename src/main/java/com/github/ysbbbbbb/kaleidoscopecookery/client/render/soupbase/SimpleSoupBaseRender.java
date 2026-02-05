@@ -8,14 +8,14 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 
 @Environment(EnvType.CLIENT)
 public class SimpleSoupBaseRender implements ISoupBaseRender {
-    private final ResourceLocation soupBaseTexture;
+    private final Identifier soupBaseTexture;
 
-    public SimpleSoupBaseRender(ResourceLocation soupBaseTexture) {
+    public SimpleSoupBaseRender(Identifier soupBaseTexture) {
         this.soupBaseTexture = soupBaseTexture;
     }
 
@@ -29,7 +29,7 @@ public class SimpleSoupBaseRender implements ISoupBaseRender {
     @Override
     public void renderWhenCooking(StockpotBlockEntity stockpot, float partialTick, PoseStack poseStack,
                                   MultiBufferSource buffer, int packedLight, int packedOverlay,
-                                  ResourceLocation cookingTexture, float soupHeight) {
+                                  Identifier cookingTexture, float soupHeight) {
         var atlas = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
         TextureAtlasSprite sprite = atlas.apply(cookingTexture);
         ISoupBaseRender.renderSurface(sprite, 0xFFFFFFFF, poseStack, buffer, packedLight, soupHeight);
@@ -38,7 +38,7 @@ public class SimpleSoupBaseRender implements ISoupBaseRender {
     @Override
     public void renderWhenFinished(StockpotBlockEntity stockpot, float partialTick, PoseStack poseStack,
                                    MultiBufferSource buffer, int packedLight, int packedOverlay,
-                                   ResourceLocation finishedTexture, float soupHeight) {
+                                   Identifier finishedTexture, float soupHeight) {
         var atlas = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
         TextureAtlasSprite sprite = atlas.apply(finishedTexture);
         ISoupBaseRender.renderSurface(sprite, 0xFFFFFFFF, poseStack, buffer, packedLight, soupHeight);

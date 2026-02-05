@@ -9,14 +9,14 @@ import com.github.ysbbbbbb.kaleidoscopecookery.init.ModItems;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.registry.FoodBiteRegistry;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.tag.TagMod;
 import com.github.ysbbbbbb.kaleidoscopecookery.loot.AdvanceBlockMatchTool;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.StatePropertiesPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
@@ -232,7 +232,7 @@ public class BlockLootTables extends BlockLootSubProvider {
         this.add(block, lootTable);
     }
 
-    private void dropFoodBite(ResourceLocation id, FoodBiteRegistry.FoodData data) {
+    private void dropFoodBite(Identifier id, FoodBiteRegistry.FoodData data) {
         Block block = BuiltInRegistries.BLOCK.get(id);
         Item food = BuiltInRegistries.ITEM.get(id);
         if (!(block instanceof FoodBiteBlock foodBiteBlock)) {
@@ -262,7 +262,7 @@ public class BlockLootTables extends BlockLootSubProvider {
         super.add(block, builder);
     }
 
-    public ResourceLocation modLoc(String name) {
-        return ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, name);
+    public Identifier modLoc(String name) {
+        return Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, name);
     }
 }

@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 public record ThrowBaoziMessage() implements CustomPacketPayload, ServerPlayNetworking.PlayPayloadHandler<ThrowBaoziMessage> {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "throwing_baozi");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "throwing_baozi");
     public static final Type<ThrowBaoziMessage> TYPE = new Type<>(ID);
     public static ThrowBaoziMessage INSTANCE = new ThrowBaoziMessage();
     public static final StreamCodec<RegistryFriendlyByteBuf, ThrowBaoziMessage> STREAM_CODEC = StreamCodec.unit(INSTANCE);

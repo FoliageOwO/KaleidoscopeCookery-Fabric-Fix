@@ -2,6 +2,7 @@ package com.github.ysbbbbbb.kaleidoscopecookery.effect;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModAttachmentType;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModTrigger;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
@@ -24,7 +25,7 @@ public class FlatulenceEffect extends BaseEffect {
 
     @SuppressWarnings("all")
     @Override
-    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel level, LivingEntity livingEntity, int amplifier) {
         if (livingEntity instanceof ServerPlayer serverPlayer) {
             if (!serverPlayer.hasAttached(ModAttachmentType.FLATULENCE_EFFECT_STARTING_POSITION)) {
                 serverPlayer.setAttached(ModAttachmentType.FLATULENCE_EFFECT_STARTING_POSITION, serverPlayer.position());

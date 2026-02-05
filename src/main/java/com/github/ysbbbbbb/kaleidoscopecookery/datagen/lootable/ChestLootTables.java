@@ -8,7 +8,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -19,8 +19,8 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import java.util.function.BiConsumer;
 
 public class ChestLootTables implements LootTableSubProvider {
-    public static final ResourceLocation VILLAGE_CHEST = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "chest/village_chest");
-    public static final ResourceLocation VILLAGE_HIDE_CHEST = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "chest/village_hide_chest");
+    public static final Identifier VILLAGE_CHEST = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "chest/village_chest");
+    public static final Identifier VILLAGE_HIDE_CHEST = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "chest/village_hide_chest");
 
     public ChestLootTables(HolderLookup.Provider registries) {
     }

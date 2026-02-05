@@ -1,18 +1,10 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "tag": "c:cooked_rice"
-  },
+  "carrier": "#c:cooked_rice",
   "ingredients": [
-    {
-      "item": "minecraft:potato"
-    },
-    {
-      "item": "minecraft:beef"
-    },
-    {
-      "tag": "c:crops/onion"
-    }
+    "minecraft:potato",
+    "minecraft:beef",
+    "#c:crops/onion"
   ],
   "result": {
     "id": "farmersdelight:steak_and_potatoes"

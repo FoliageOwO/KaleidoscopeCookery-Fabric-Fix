@@ -5,12 +5,8 @@
   "finished_bubble_color": 16711680,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_red",
   "ingredients": [
-    {
-      "item": "farmersdelight:tomato_sauce"
-    },
-    {
-      "tag": "c:crops/onion"
-    }
+    "farmersdelight:tomato_sauce",
+    "#c:crops/onion"
   ],
   "result": {
     "id": "farmersdelight:fish_stew"

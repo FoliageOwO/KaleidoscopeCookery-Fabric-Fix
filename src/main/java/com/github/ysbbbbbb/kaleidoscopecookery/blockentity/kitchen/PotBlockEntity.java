@@ -5,7 +5,6 @@ import com.github.ysbbbbbb.kaleidoscopecookery.api.blockentity.IPot;
 import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.BaseBlockEntity;
 import com.github.ysbbbbbb.kaleidoscopecookery.crafting.container.SimpleInput;
 import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.PotRecipe;
-import com.github.ysbbbbbb.kaleidoscopecookery.datagen.tag.TagItem;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.*;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.tag.TagCommon;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.tag.TagMod;
@@ -13,13 +12,8 @@ import com.github.ysbbbbbb.kaleidoscopecookery.item.KitchenShovelItem;
 import com.github.ysbbbbbb.kaleidoscopecookery.item.OilPotItem;
 import com.github.ysbbbbbb.kaleidoscopecookery.util.ItemUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
@@ -40,8 +34,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.ysbbbbbb.kaleidoscopecookery.block.kitchen.PotBlock.HAS_OIL;
 import static com.github.ysbbbbbb.kaleidoscopecookery.block.kitchen.PotBlock.SHOW_OIL;
@@ -61,7 +58,7 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
     private static final String SEED = "Seed";
 
     private NonNullList<ItemStack> inputs = NonNullList.withSize(PotRecipe.RECIPES_SIZE, ItemStack.EMPTY);
-    private Ingredient carrier = Ingredient.EMPTY;
+    private Optional<Ingredient> carrier = Optional.empty();
     private ItemStack result = ItemStack.EMPTY;
     private int status = PUT_INGREDIENT;
     private int currentTick = 0;
@@ -178,7 +175,7 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
             // 检查翻炒次数
             if (this.stirFryCount > 0) {
                 this.result = getItem(SUSPICIOUS_STIR_FRY).getDefaultInstance();
-                this.carrier = Ingredient.of(Items.BOWL);
+                this.carrier = Optional.of(Ingredient.of(Items.BOWL));
             }
             this.currentTick = TAKEOUT_TIME;
             this.setChanged();
@@ -257,7 +254,7 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
 
     @Override
     public void onShovelHit(Level level, LivingEntity user, ItemStack shovel) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             this.seed = System.currentTimeMillis();
             this.refresh();
         }
@@ -291,7 +288,7 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
 
     private void startCooking(Level level) {
         SimpleInput simpleInput = new SimpleInput(this.inputs);
-        level.getRecipeManager().getRecipeFor(ModRecipes.POT_RECIPE, simpleInput, level).ifPresentOrElse(recipe -> {
+        level.getServer().getRecipeManager().getRecipeFor(ModRecipes.POT_RECIPE, simpleInput, level).ifPresentOrElse(recipe -> {
             // 如果合成表符合，那么进入炒菜阶段
             PotRecipe value = recipe.value();
             this.carrier = value.carrier();
@@ -300,7 +297,7 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
             this.stirFryCount = value.stirFryCount();
         }, () -> {
             // 不符合，进入迷之炒菜阶段
-            this.carrier = Ingredient.of(Items.BOWL);
+            this.carrier = Optional.of(Ingredient.of(Items.BOWL));
             this.result = getItem(SUSPICIOUS_STIR_FRY).getDefaultInstance();
             this.currentTick = 10 * 20; // 迷之炒菜时间
             this.stirFryCount = 0; // 迷之炒菜不计翻炒次数
@@ -326,7 +323,7 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
             return true;
         }
 
-        if (!this.carrier.isEmpty()) {
+        if (this.carrier.isPresent()) {
             return this.takeOutWithCarrier(level, user, stack, finallyResult);
         } else {
             return this.takeOutWithoutCarrier(level, user, stack, finallyResult);
@@ -353,8 +350,10 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
     }
 
     private boolean takeOutWithCarrier(Level level, LivingEntity user, ItemStack mainHandItem, ItemStack finallyResult) {
-        Component carrierName = carrier.getItems()[0].getHoverName();
-        if (this.carrier.test(mainHandItem)) {
+        Component carrierName = this.carrier.flatMap(value -> value.items().findFirst())
+                .map(holder -> holder.value().getDefaultInstance().getHoverName())
+                .orElse(Component.empty());
+        if (this.carrier.map(value -> value.test(mainHandItem)).orElse(false)) {
             if (mainHandItem.getCount() < finallyResult.getCount()) {
                 this.sendActionBarMessage(user, "carrier_count_not_enough", finallyResult.getCount(), carrierName);
                 return false;
@@ -428,7 +427,7 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
 
     public void reset() {
         this.inputs.clear();
-        this.carrier = Ingredient.EMPTY;
+        this.carrier = Optional.empty();
         this.result = ItemStack.EMPTY;
         this.status = PUT_INGREDIENT;
         this.currentTick = 0;
@@ -441,11 +440,11 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put(INPUTS, ContainerHelper.saveAllItems(new CompoundTag(), this.inputs, registries));
-        tag.put(CARRIER, Ingredient.CODEC.encodeStart(NbtOps.INSTANCE, this.carrier).getOrThrow());
-        tag.put(RESULT, this.result.saveOptional(registries));
+    protected void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        ContainerHelper.saveAllItems(tag.child(INPUTS), this.inputs);
+        this.carrier.ifPresent(value -> tag.store(CARRIER, Ingredient.CODEC, value));
+        tag.store(RESULT, ItemStack.OPTIONAL_CODEC, this.result);
         tag.putInt(STATUS, this.status);
         tag.putInt(CURRENT_TICK, this.currentTick);
         tag.putInt(STIR_FRY_COUNT, this.stirFryCount);
@@ -453,23 +452,18 @@ public class PotBlockEntity extends BaseBlockEntity implements IPot {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
         this.inputs = NonNullList.withSize(PotRecipe.RECIPES_SIZE, ItemStack.EMPTY);
-        if (tag.contains(INPUTS, Tag.TAG_COMPOUND)) {
-            ContainerHelper.loadAllItems(tag.getCompound(INPUTS), this.inputs, registries);
+        if (tag.child(INPUTS).isPresent()) {
+            ContainerHelper.loadAllItems(tag.childOrEmpty(INPUTS), this.inputs);
         }
-        if (tag.contains(CARRIER, Tag.TAG_COMPOUND)) {
-            CompoundTag compound = tag.getCompound(CARRIER);
-            this.carrier = Ingredient.CODEC.decode(NbtOps.INSTANCE, compound).getOrThrow().getFirst();
-        }
-        if (tag.contains(RESULT, Tag.TAG_COMPOUND)) {
-            this.result = ItemStack.parseOptional(registries, tag.getCompound(RESULT));
-        }
-        this.status = tag.getInt(STATUS);
-        this.currentTick = tag.getInt(CURRENT_TICK);
-        this.stirFryCount = tag.getInt(STIR_FRY_COUNT);
-        this.seed = tag.getLong(SEED);
+        this.carrier = tag.read(CARRIER, Ingredient.CODEC);
+        this.result = tag.read(RESULT, ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
+        this.status = tag.getIntOr(STATUS, PUT_INGREDIENT);
+        this.currentTick = tag.getIntOr(CURRENT_TICK, 0);
+        this.stirFryCount = tag.getIntOr(STIR_FRY_COUNT, 0);
+        this.seed = tag.getLongOr(SEED, System.currentTimeMillis());
     }
 
     public List<ItemStack> getInputs() {

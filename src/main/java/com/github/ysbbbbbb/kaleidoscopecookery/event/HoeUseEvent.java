@@ -52,10 +52,10 @@ public class HoeUseEvent {
         }
 
         // 替换为耕地
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             level.setBlockAndUpdate(pos, Blocks.FARMLAND.defaultBlockState());
             level.playSound(null, pos, SoundEvents.HOE_TILL, SoundSource.BLOCKS, 1.0F, 1.0F);
-            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+            stack.hurtAndBreak(1, player, hand);
             ModTrigger.EVENT.trigger(player, ModEventTriggerType.USE_HOE_ON_WATER_FIELD);
         }
         return InteractionResult.SUCCESS;

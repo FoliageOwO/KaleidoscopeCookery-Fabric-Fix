@@ -1,33 +1,15 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "item": "minecraft:bowl"
-  },
+  "carrier": "minecraft:bowl",
   "ingredients": [
-    {
-      "item": "minecraft:sweet_berries"
-    },
-    {
-      "item": "minecraft:sweet_berries"
-    },
-    {
-      "item": "minecraft:sweet_berries"
-    },
-    {
-      "item": "minecraft:sweet_berries"
-    },
-    {
-      "item": "minecraft:honey_bottle"
-    },
-    {
-      "tag": "c:raw_ham"
-    },
-    {
-      "tag": "c:cooked_rice"
-    },
-    {
-      "tag": "c:cooked_rice"
-    }
+    "minecraft:sweet_berries",
+    "minecraft:sweet_berries",
+    "minecraft:sweet_berries",
+    "minecraft:sweet_berries",
+    "minecraft:honey_bottle",
+    "#c:raw_ham",
+    "#c:cooked_rice",
+    "#c:cooked_rice"
   ],
   "result": {
     "id": "farmersdelight:honey_glazed_ham_block"

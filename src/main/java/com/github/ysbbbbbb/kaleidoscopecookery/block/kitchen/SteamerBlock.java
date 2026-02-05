@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
@@ -25,6 +24,8 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -33,7 +34,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -50,8 +51,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class SteamerBlock extends FallingBlock implements EntityBlock, SimpleWaterloggedBlock {
-    public static final MapCodec<SteamerBlock> CODEC = simpleCodec(p -> new SteamerBlock());
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final MapCodec<SteamerBlock> CODEC = simpleCodec(SteamerBlock::new);
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty HALF = BooleanProperty.create("half");
     public static final BooleanProperty HAS_LID = BooleanProperty.create("has_lid");
     public static final BooleanProperty HAS_BASE = BooleanProperty.create("has_base");
@@ -60,8 +61,8 @@ public class SteamerBlock extends FallingBlock implements EntityBlock, SimpleWat
     private static final VoxelShape HALF_AABB = Block.box(1, 0, 1, 15, 8, 15);
     private static final VoxelShape FULL_AABB = Block.box(1, 0, 1, 15, 16, 15);
 
-    public SteamerBlock() {
-        super(Properties.of()
+    public SteamerBlock(Properties properties) {
+        super(properties
                 .mapColor(MapColor.WOOD)
                 .instrument(NoteBlockInstrument.BASEDRUM)
                 .instabreak()
@@ -101,7 +102,7 @@ public class SteamerBlock extends FallingBlock implements EntityBlock, SimpleWat
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         BlockState below = level.getBlockState(pos.below());
-        if (isFree(below) && pos.getY() >= level.getMinBuildHeight()) {
+        if (isFree(below) && pos.getY() >= level.getMinY()) {
             CompoundTag blockEntityTag = null;
             if (level.getBlockEntity(pos) instanceof SteamerBlockEntity steamer) {
                 blockEntityTag = steamer.saveWithoutMetadata(level.registryAccess());
@@ -118,19 +119,19 @@ public class SteamerBlock extends FallingBlock implements EntityBlock, SimpleWat
     }
 
     @Override
-    public @NotNull BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
-                                           LevelAccessor levelAccessor, BlockPos pos, BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(BlockState state, LevelReader levelReader, ScheduledTickAccess scheduledTickAccess,
+                                           BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource randomSource) {
         if (state.getValue(WATERLOGGED)) {
-            levelAccessor.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
+            scheduledTickAccess.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(levelReader));
         }
-        levelAccessor.scheduleTick(pos, this, this.getDelayAfterPlace());
+        scheduledTickAccess.scheduleTick(pos, this, this.getDelayAfterPlace());
         // 如果下方是不完整方块，则添加基座
         if (direction == Direction.DOWN) {
             // 如果下方完全是空气，那么反而不需要添加基座了，让它自然掉落
             if (isFree(neighborState)) {
                 state = state.setValue(HAS_BASE, false);
             } else {
-                state = state.setValue(HAS_BASE, shouldHasBase(levelAccessor, pos));
+                state = state.setValue(HAS_BASE, shouldHasBase(levelReader, pos));
             }
         }
         // 如果是上方方块是蒸笼，那么把盖子去掉
@@ -141,14 +142,14 @@ public class SteamerBlock extends FallingBlock implements EntityBlock, SimpleWat
     }
 
     @Override
-    public @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public @NotNull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         ItemStack itemInHand = player.getItemInHand(hand);
         // 空手 Shift 右击盖盖子、去掉盖子
         // 需要检查上方是否有方块，如果有方块则不能盖盖子
         Boolean hasLid = state.getValue(HAS_LID);
         if (itemInHand.isEmpty() && player.isSecondaryUseActive() && (hasLid || !level.getBlockState(pos.above()).is(this))) {
             level.setBlock(pos, state.setValue(HAS_LID, !hasLid), Block.UPDATE_ALL);
-            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         // 手持蒸笼，右击可以摞上去
@@ -156,21 +157,21 @@ public class SteamerBlock extends FallingBlock implements EntityBlock, SimpleWat
             if (state.getValue(HALF) && itemInHand.getItem() instanceof SteamerItem steamerItem) {
                 InteractionResult place = steamerItem.place(new BlockPlaceContext(player, hand, itemInHand, hitResult));
                 if (place.consumesAction()) {
-                    return ItemInteractionResult.sidedSuccess(level.isClientSide);
+                    return InteractionResult.SUCCESS;
                 }
             }
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
 
         // 其他情况交给 BlockEntity 处理
         if (level.getBlockEntity(pos) instanceof ISteamer steamer) {
             // 先尝试放入物品
             if (steamer.placeFood(level, player, itemInHand)) {
-                return ItemInteractionResult.sidedSuccess(level.isClientSide);
+                return InteractionResult.SUCCESS;
             }
             // 再尝试取出物品
             if (steamer.takeFood(level, player, hand)) {
-                return ItemInteractionResult.sidedSuccess(level.isClientSide);
+                return InteractionResult.SUCCESS;
             }
         }
 
@@ -200,7 +201,7 @@ public class SteamerBlock extends FallingBlock implements EntityBlock, SimpleWat
         return resultState.setValue(HAS_BASE, shouldHasBase(context.getLevel(), clickedPos));
     }
 
-    private boolean shouldHasBase(LevelAccessor level, BlockPos pos) {
+    private boolean shouldHasBase(LevelReader level, BlockPos pos) {
         BlockState belowState = level.getBlockState(pos.below());
         // 如果还是蒸笼，那么不添加基座
         if (belowState.is(this)) {
@@ -269,5 +270,10 @@ public class SteamerBlock extends FallingBlock implements EntityBlock, SimpleWat
             return steamer.dropAsItem(steamer.getLevel());
         }
         return super.getDrops(state, lootParamsBuilder);
+    }
+
+    @Override
+    public int getDustColor(BlockState state, BlockGetter level, BlockPos pos) {
+        return 0;
     }
 }

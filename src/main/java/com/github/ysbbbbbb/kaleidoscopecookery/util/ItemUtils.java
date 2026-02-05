@@ -5,7 +5,6 @@ import com.github.ysbbbbbb.kaleidoscopecookery.init.tag.TagMod;
 import com.github.ysbbbbbb.kaleidoscopecookery.util.neo.IItemHandler;
 import com.github.ysbbbbbb.kaleidoscopecookery.util.neo.PlayerMainInvWrapper;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -13,11 +12,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class ItemUtils {
@@ -32,8 +31,10 @@ public class ItemUtils {
         } else if (entity instanceof Player player) {
             player.getInventory().placeItemBackInInventory(stack);
         } else {
-            // 否则直接在实体所处位置生成物品
-            ItemEntity dropItem = entity.spawnAtLocation(stack);
+            ItemEntity dropItem = null;
+            if (entity.level() instanceof ServerLevel serverLevel) {
+                dropItem = entity.spawnAtLocation(serverLevel, stack);
+            }
             if (dropItem != null) {
                 dropItem.setPickUpDelay(0);
             }
@@ -51,8 +52,10 @@ public class ItemUtils {
         } else if (entity instanceof Player player) {
             giveItemToPlayer(player, stack, preferredSlot);
         } else {
-            // 否则直接在实体所处位置生成物品
-            ItemEntity dropItem = entity.spawnAtLocation(stack);
+            ItemEntity dropItem = null;
+            if (entity.level() instanceof ServerLevel serverLevel) {
+                dropItem = entity.spawnAtLocation(serverLevel, stack);
+            }
             if (dropItem != null) {
                 dropItem.setPickUpDelay(0);
             }
@@ -91,7 +94,7 @@ public class ItemUtils {
                 level.playSound(null, player.getX(), player.getY() + (double)0.5F, player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((level.random.nextFloat() - level.random.nextFloat()) * 0.7F + 1.0F) * 2.0F);
             }
 
-            if (!remainder.isEmpty() && !level.isClientSide) {
+            if (!remainder.isEmpty() && !level.isClientSide()) {
                 ItemEntity entityItem = new ItemEntity(level, player.getX(), player.getY() + (double)0.5F, player.getZ(), remainder);
                 entityItem.setPickUpDelay(40);
                 entityItem.setDeltaMovement(entityItem.getDeltaMovement().multiply(0.0F, 1.0F, 0.0F));
@@ -153,20 +156,8 @@ public class ItemUtils {
         if (stack.isEmpty()) {
             return Items.AIR;
         }
-        FoodProperties foodProperties = stack.get(DataComponents.FOOD);
-        if (foodProperties != null) {
-            return foodProperties.usingConvertsTo()
-                    .map(ItemStack::getItem)
-                    .orElse(Items.AIR);
-        }
         Item item = stack.getItem();
-        ItemStack remainingItem;
-        if (item.hasCraftingRemainingItem()) {
-            assert item.getCraftingRemainingItem() != null;
-            remainingItem = new ItemStack(item.getCraftingRemainingItem());
-        } else {
-            remainingItem = ItemStack.EMPTY;
-        }
+        ItemStack remainingItem = item.getCraftingRemainder();
         if (!remainingItem.isEmpty()) {
             return remainingItem.getItem();
         }

@@ -1,9 +1,7 @@
 {
   "type": "kaleidoscope_cookery:chopping_board",
   "cut_count": 2,
-  "ingredient": {
-    "item": "minecraft:cake"
-  },
+  "ingredient": "minecraft:cake",
   "model_id": "kaleidoscope_cookery:cake",
   "result": {
     "count": 7,

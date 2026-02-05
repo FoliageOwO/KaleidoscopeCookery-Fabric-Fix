@@ -1,23 +1,34 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.entity;
 
+import com.github.ysbbbbbb.kaleidoscopecookery.KaleidoscopeCookery;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.tag.TagMod;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 public class SitEntity extends Entity {
+    public static final ResourceKey<EntityType<?>> TYPE_KEY = ResourceKey.create(
+            Registries.ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "sit")
+    );
+
     public static final EntityType<SitEntity> TYPE = EntityType.Builder.<SitEntity>of(SitEntity::new, MobCategory.MISC)
             .sized(0.5f, 0.1f)
             .clientTrackingRange(10)
             .noSave().noSummon()
-            .build("sit");
+            .build(TYPE_KEY);
+
     private int passengerTick = 0;
 
     public SitEntity(EntityType<?> entityTypeIn, Level worldIn) {
@@ -44,19 +55,19 @@ public class SitEntity extends Entity {
     }
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag tag) {
+    protected void readAdditionalSaveData(ValueInput tag) {
     }
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag tag) {
+    protected void addAdditionalSaveData(ValueOutput tag) {
     }
 
     @Override
     public void tick() {
-        if (!this.level().isClientSide) {
+        super.tick();
+        if (!this.level().isClientSide()) {
             this.checkBelowWorld();
             this.checkPassengers();
-            // 每秒检查一次所处位置是否有方块，没有就删除实体
             if (this.tickCount % 20 == 0) {
                 BlockState blockState = this.level().getBlockState(this.blockPosition());
                 if (!blockState.is(TagMod.SITTABLE)) {
@@ -80,11 +91,6 @@ public class SitEntity extends Entity {
     @Override
     public boolean skipAttackInteraction(Entity targetEntity) {
         return true;
-    }
-
-    @Override
-    public boolean hurt(DamageSource damageSource, float damageAmount) {
-        return false;
     }
 
     @Override
@@ -114,6 +120,11 @@ public class SitEntity extends Entity {
 
     @Override
     public boolean canCollideWith(Entity entity) {
+        return false;
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
         return false;
     }
 }

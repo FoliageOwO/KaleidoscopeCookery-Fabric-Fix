@@ -17,16 +17,14 @@ import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 
 public class StrawBlocks extends RotatedPillarBlock {
-    public StrawBlocks() {
-        super(Properties.of()
+    public StrawBlocks(Properties properties) {
+        super(properties
                 .mapColor(MapColor.COLOR_YELLOW)
                 .instrument(NoteBlockInstrument.BANJO)
                 .strength(0.5F)
                 .sound(SoundType.GRASS));
         this.registerDefaultState(this.stateDefinition.any().setValue(AXIS, Direction.Axis.Y));
     }
-
-    @Override
     public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
         if (level.isClientSide()) {
             return;

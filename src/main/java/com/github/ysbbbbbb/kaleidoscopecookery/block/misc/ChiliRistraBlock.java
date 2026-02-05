@@ -11,7 +11,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +20,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -39,10 +40,10 @@ public class ChiliRistraBlock extends Block {
     private static final VoxelShape AABB_HEAD = Block.box(4, 2, 4, 12, 16, 12);
     private static final VoxelShape AABB_BODY = Block.box(3.5, 0, 3.5, 12.5, 16, 12.5);
 
-    public ChiliRistraBlock() {
-        super(Properties.of()
+    public ChiliRistraBlock(Properties properties) {
+        super(properties
                 .mapColor(MapColor.COLOR_RED)
-                .noCollission()
+                .noCollision()
                 .instabreak()
                 .sound(SoundType.GRASS)
                 .pushReaction(PushReaction.DESTROY));
@@ -50,15 +51,13 @@ public class ChiliRistraBlock extends Block {
                 .setValue(IS_HEAD, true)
                 .setValue(SHEARED, false));
     }
-
-    @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (hand != InteractionHand.MAIN_HAND) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
         ItemStack mainHandItem = player.getMainHandItem();
         if (!mainHandItem.isEmpty() && !mainHandItem.is(ModItems.RED_CHILI)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
         if (state.getValue(SHEARED)) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
@@ -85,45 +84,33 @@ public class ChiliRistraBlock extends Block {
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
-
-    @Override
     public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (!level.isClientSide && entity instanceof Mob mob && mob.getType().is(EntityTypeTags.UNDEAD)) {
+        if (!level.isClientSide() && entity instanceof Mob mob && mob.getType().is(EntityTypeTags.UNDEAD)) {
             mob.hurt(level.damageSources().magic(), 2.0F);
         }
     }
-
-    @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor levelAccessor, BlockPos currentPos, BlockPos neighborPos) {
-        if (direction == Direction.DOWN.getOpposite() && !state.canSurvive(levelAccessor, currentPos)) {
-            levelAccessor.scheduleTick(currentPos, this, 1);
+    public BlockState updateShape(BlockState state, LevelReader levelReader, ScheduledTickAccess scheduledTickAccess, BlockPos currentPos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource randomSource) {
+        if (direction == Direction.DOWN.getOpposite() && !state.canSurvive(levelReader, currentPos)) {
+            scheduledTickAccess.scheduleTick(currentPos, this, 1);
         }
         if (direction == Direction.DOWN) {
             return state.setValue(IS_HEAD, !neighborState.is(this));
         }
-        return super.updateShape(state, direction, neighborState, levelAccessor, currentPos, neighborPos);
+        return super.updateShape(state, levelReader, scheduledTickAccess, currentPos, direction, neighborPos, neighborState, randomSource);
     }
-
-    @Override
     public boolean canSurvive(BlockState state, LevelReader levelReader, BlockPos pos) {
         BlockPos belowPos = pos.relative(Direction.DOWN.getOpposite());
         BlockState belowState = levelReader.getBlockState(belowPos);
         return belowState.is(this) || belowState.isFaceSturdy(levelReader, belowPos, Direction.DOWN);
     }
-
-    @Override
     public void tick(BlockState state, ServerLevel serverLevel, BlockPos pos, RandomSource random) {
         if (!state.canSurvive(serverLevel, pos)) {
             serverLevel.destroyBlock(pos, true);
         }
     }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(IS_HEAD, SHEARED);
     }
-
-    @Override
     public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext collisionContext) {
         return state.getValue(IS_HEAD) ? AABB_HEAD : AABB_BODY;
     }

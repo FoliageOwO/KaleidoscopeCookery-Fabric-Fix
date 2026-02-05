@@ -9,13 +9,13 @@ import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 @Environment(EnvType.CLIENT)
 public class ChoppingBoardBlockEntityRender implements BlockEntityRenderer<ChoppingBoardBlockEntity> {
@@ -27,22 +27,22 @@ public class ChoppingBoardBlockEntityRender implements BlockEntityRenderer<Chopp
 
     @Override
     public void render(ChoppingBoardBlockEntity choppingBoard, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        ResourceLocation modelId = choppingBoard.getModelId();
+        Identifier modelId = choppingBoard.getModelId();
         if (modelId == null) {
             return;
         }
         if (!modelId.equals(choppingBoard.previousModel)) {
             choppingBoard.previousModel = modelId;
-            choppingBoard.cacheModels = new ResourceLocation[choppingBoard.getMaxCutCount() + 1];
+            choppingBoard.cacheModels = new Identifier[choppingBoard.getMaxCutCount() + 1];
             for (int i = 0; i <= choppingBoard.getMaxCutCount(); i++) {
-                choppingBoard.cacheModels[i] = ResourceLocation.fromNamespaceAndPath(modelId.getNamespace(), "chopping_board/" + modelId.getPath() + "/" + i);
+                choppingBoard.cacheModels[i] = Identifier.fromNamespaceAndPath(modelId.getNamespace(), "chopping_board/" + modelId.getPath() + "/" + i);
             }
         }
         if (choppingBoard.cacheModels == null) {
             return;
         }
         int index = Math.min(choppingBoard.getCurrentCutCount(), choppingBoard.cacheModels.length - 1);
-        ResourceLocation cacheModel = choppingBoard.cacheModels[index];
+        Identifier cacheModel = choppingBoard.cacheModels[index];
 
         poseStack.pushPose();
         int rotation = choppingBoard.getBlockState().getValue(ChoppingBoardBlock.FACING).get2DDataValue();

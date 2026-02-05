@@ -6,7 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
@@ -19,31 +19,26 @@ import java.util.List;
 public class FoodWithEffectsItem extends Item {
     private final List<MobEffectInstance> effectInstances = Lists.newArrayList();
 
-    public FoodWithEffectsItem(FoodProperties properties) {
-        super(new Properties().food(properties));
-        properties.effects().forEach(effect -> {
-            if (effect.probability() >= 1F) {
-                effectInstances.add(effect.effect());
-            }
-        });
+    public FoodWithEffectsItem(Properties itemProperties, FoodProperties properties) {
+        super(itemProperties.food(properties));
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, java.util.function.Consumer<Component> tooltip, TooltipFlag flag) {
+        Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         String key = "tooltip.%s.%s.maxim".formatted(id.getNamespace(), id.getPath());
         MutableComponent full = Component.translatable(key).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC);
         // 先拿到纯文本，再按 \n 切
         String text = full.getString();
         for (String line : text.split("\n")) {
             if (!line.isEmpty()) {
-                tooltip.add(Component.literal(line).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+                tooltip.accept(Component.literal(line).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
             } else {
-                tooltip.add(CommonComponents.EMPTY);
+                tooltip.accept(CommonComponents.EMPTY);
             }
             if (!this.effectInstances.isEmpty()) {
-                tooltip.add(CommonComponents.space());
-                PotionContents.addPotionTooltip(this.effectInstances, tooltip::add, 1.0F, context.tickRate());
+                tooltip.accept(CommonComponents.space());
+                PotionContents.addPotionTooltip(this.effectInstances, tooltip, 1.0F, context.tickRate());
             }
         }
     }

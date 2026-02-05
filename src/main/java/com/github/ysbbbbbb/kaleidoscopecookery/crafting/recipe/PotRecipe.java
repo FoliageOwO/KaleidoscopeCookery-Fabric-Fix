@@ -7,24 +7,34 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 
-public record PotRecipe(int time, int stirFryCount, Ingredient carrier,
+public record PotRecipe(int time, int stirFryCount, Optional<Ingredient> carrier,
                         NonNullList<Ingredient> ingredients, ItemStack result) implements BaseRecipe<SimpleInput> {
-    public PotRecipe(int time, int stirFryCount, Ingredient carrier,
+    public PotRecipe(int time, int stirFryCount, Optional<Ingredient> carrier,
                      List<Ingredient> ingredients, ItemStack result) {
-        this(time, stirFryCount, carrier, NonNullList.of(Ingredient.EMPTY,
-                BaseRecipe.fillInputs(ingredients)), result);
+        this(time, stirFryCount, carrier, copyIngredients(ingredients), result);
+    }
+
+    private static NonNullList<Ingredient> copyIngredients(List<Ingredient> ingredients) {
+        NonNullList<Ingredient> copied = NonNullList.create();
+        copied.addAll(ingredients);
+        return copied;
     }
 
     @Override
     public boolean matches(SimpleInput simpleInput, Level level) {
-        return RecipeMatcher.findMatches(simpleInput.getInputs(), ingredients) != null;
+        List<net.minecraft.world.item.ItemStack> nonEmptyInputs = simpleInput.getInputs().stream()
+                .filter(stack -> !stack.isEmpty())
+                .toList();
+        return RecipeMatcher.findMatches(nonEmptyInputs, ingredients) != null;
     }
 
     @Override
@@ -38,12 +48,12 @@ public record PotRecipe(int time, int stirFryCount, Ingredient carrier,
     }
 
     @Override
-    public @NotNull RecipeSerializer<?> getSerializer() {
+    public @NotNull RecipeSerializer<? extends Recipe<SimpleInput>> getSerializer() {
         return ModRecipes.POT_SERIALIZER;
     }
 
     @Override
-    public @NotNull RecipeType<?> getType() {
+    public @NotNull RecipeType<? extends Recipe<SimpleInput>> getType() {
         return ModRecipes.POT_RECIPE;
     }
 }

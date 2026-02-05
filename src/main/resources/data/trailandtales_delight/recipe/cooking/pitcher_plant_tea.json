@@ -1,22 +1,14 @@
 {
   "type": "kaleidoscope_cookery:stockpot",
-  "carrier": {
-    "item": "minecraft:glass_bottle"
-  },
+  "carrier": "minecraft:glass_bottle",
   "cooking_bubble_color": 16772291,
   "cooking_texture": "kaleidoscope_cookery:stockpot/default_cooking",
   "finished_bubble_color": 6039351,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_pitcher",
   "ingredients": [
-    {
-      "item": "minecraft:pitcher_plant"
-    },
-    {
-      "item": "minecraft:sugar"
-    },
-    {
-      "item": "minecraft:potion"
-    }
+    "minecraft:pitcher_plant",
+    "minecraft:sugar",
+    "minecraft:potion"
   ],
   "result": {
     "id": "trailandtales_delight:pitcher_plant_tea"

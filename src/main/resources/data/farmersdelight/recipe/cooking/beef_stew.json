@@ -5,15 +5,9 @@
   "finished_bubble_color": 9127187,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_brown",
   "ingredients": [
-    {
-      "tag": "c:raw_beef"
-    },
-    {
-      "item": "minecraft:carrot"
-    },
-    {
-      "item": "minecraft:potato"
-    }
+    "#c:raw_beef",
+    "minecraft:carrot",
+    "minecraft:potato"
   ],
   "result": {
     "id": "farmersdelight:beef_stew"

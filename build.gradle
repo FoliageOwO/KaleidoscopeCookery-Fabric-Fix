@@ -1,12 +1,15 @@
 plugins {
     id 'eclipse'
     id 'idea'
-    id 'fabric-loom' version '1.11-SNAPSHOT'
+    id 'fabric-loom' version '1.14.10'
 }
 
 version = project.mod_version
 group = project.maven_group
-archivesBaseName = "kaleidoscopecookery"
+
+base {
+    archivesName = "kaleidoscopecookery"
+}
 
 loom {
     accessWidenerPath = file("src/main/resources/kaleidoscope_cookery.accesswidener")
@@ -86,32 +89,39 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.layered() {
+    mappings loom.layered {
         officialMojangMappings()
         parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_version}@zip")
     }
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "curse.maven:ftb-ultimine-fabric-448231:7188393"
-    modImplementation "curse.maven:ftb-library-fabric-438495:7260615"
-    modImplementation("mezz.jei:jei-${project.minecraft_version}-fabric:${project.jei_version}")
-    modImplementation "curse.maven:jade-324717:6738760"
-    modImplementation "curse.maven:roughly-enough-items-310111:6199139"
-    modImplementation "curse.maven:cloth-config-348521:5729125"
+    // Optional QoL mods; keep out of baseline dev runtime while migrating core gameplay.
+    // modImplementation "curse.maven:ftb-ultimine-fabric-448231:7188393"
+    // modImplementation "curse.maven:ftb-library-fabric-438495:7260615"
+    modCompileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
+    modCompileOnly("mezz.jei:jei-${project.minecraft_version}-fabric-api:${project.jei_version}")
+    modRuntimeOnly("mezz.jei:jei-${project.minecraft_version}-fabric:${project.jei_version}") {
+        transitive = false
+    }
+    modImplementation "curse.maven:jade-324717:7427066"
+    modImplementation "curse.maven:roughly-enough-items-310111:7486489"
+    modImplementation "me.shedaniel.cloth:cloth-config-fabric:21.11.153"
     modApi("me.shedaniel.cloth:basic-math:+")
-    modImplementation "curse.maven:architectury-api-419699:5786326"
+    modImplementation "curse.maven:architectury-api-419699:7339256"
 
     // delight family compact
     modImplementation("vectorwing:FarmersDelight:${fdrf_version}") {
         exclude(group: "net.fabricmc")
     }
-    modImplementation "curse.maven:rustic-delight-1106612:7465640"
-    modImplementation "curse.maven:trail-tales-delight-1198527:6492803"
-    modImplementation "curse.maven:brewin-and-chewin-637808:7523546"
-    modImplementation("house.greenhouse:greenhouseconfig:2.2.3+1.21.1-fabric")
-    modImplementation("house.greenhouse:greenhouseconfig_toml:1.1.0")
+    modImplementation "curse.maven:rustic-delight-1106612:7508741"
+    // Trail&Tales Delight and Brewin' And Chewin' currently publish Fabric builds for 1.21.1 only.
+    // Keep them out of the dev runtime to avoid hard loader incompatibility on 1.21.11.
+    // modImplementation "curse.maven:trail-tales-delight-1198527:6492803"
+    // modImplementation "curse.maven:brewin-and-chewin-637808:7523546"
+    // modImplementation("house.greenhouse:greenhouseconfig:2.2.3+1.21.1-fabric")
+    // modImplementation("house.greenhouse:greenhouseconfig_toml:1.1.0")
 
-    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:21.1.6"
+    modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${project.forge_config_api_port_version}"
     //implementation "it.crystalnest:harvest-with-ease-fabric:1.21.1-$hwe_version"
 }
 
@@ -133,6 +143,18 @@ processResources {
 def targetJavaVersion = 21
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
+    // Temporarily exclude client-side rendering/mixin sources while porting common gameplay logic.
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/client/**")
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/compat/**")
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/datagen/**")
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/KaleidoscopeCookeryClient.java")
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/GuiLayerRegistrationMixin.java")
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/ItemRendererMixin.java")
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/MCMixin.java")
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/ModelBakeryMixin.java")
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/PlayerRendererMixin.java")
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/FallingBlockEntityMixin.java")
+    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/realize/**")
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
         it.options.release.set(targetJavaVersion)
     }

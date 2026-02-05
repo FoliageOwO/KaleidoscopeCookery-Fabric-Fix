@@ -8,7 +8,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.material.Fluid;
@@ -33,7 +33,7 @@ public class MobSoupBaseRender extends FluidSoupBaseRender {
     @Override
     public void renderWhenCooking(StockpotBlockEntity stockpot, float partialTick, PoseStack poseStack,
                                   MultiBufferSource buffer, int packedLight, int packedOverlay,
-                                  ResourceLocation cookingTexture, float soupHeight) {
+                                  Identifier cookingTexture, float soupHeight) {
         super.renderWhenCooking(stockpot, partialTick, poseStack, buffer, packedLight, packedOverlay, cookingTexture, soupHeight);
         this.renderInputEntity(stockpot, poseStack, buffer, packedLight);
     }

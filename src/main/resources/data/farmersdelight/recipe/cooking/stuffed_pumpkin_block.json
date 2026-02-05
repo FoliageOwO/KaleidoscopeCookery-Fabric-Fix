@@ -5,24 +5,12 @@
   "finished_bubble_color": 16777215,
   "finished_texture": "kaleidoscope_cookery:stockpot/rice_finished_sweet",
   "ingredients": [
-    {
-      "tag": "c:grain/rice"
-    },
-    {
-      "tag": "c:crops/onion"
-    },
-    {
-      "item": "minecraft:brown_mushroom"
-    },
-    {
-      "item": "minecraft:potato"
-    },
-    {
-      "tag": "c:berries"
-    },
-    {
-      "tag": "c:crops"
-    }
+    "#c:grain/rice",
+    "#c:crops/onion",
+    "minecraft:brown_mushroom",
+    "minecraft:potato",
+    "#c:berries",
+    "#c:crops"
   ],
   "result": {
     "id": "farmersdelight:stuffed_pumpkin_block"

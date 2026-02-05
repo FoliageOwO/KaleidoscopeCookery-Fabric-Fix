@@ -7,9 +7,9 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.ItemModelShaper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.model.ModelIdentifier;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,7 +38,7 @@ public abstract class ItemRendererMixin {
 
         boolean bl = renderMode == ItemDisplayContext.GUI || renderMode == ItemDisplayContext.GROUND || renderMode == ItemDisplayContext.FIXED;
         if (bl && stack.is(ModItems.COLD_CUT_HAM_SLICES)) {
-            return getItemModelShaper().getModelManager().getModel(ModelResourceLocation.inventory(ResourceLocation.fromNamespaceAndPath(MOD_ID, "cold_cut_ham_slices_in_gui")));
+            return getItemModelShaper().getModelManager().getModel(ModelIdentifier.inventory(Identifier.fromNamespaceAndPath(MOD_ID, "cold_cut_ham_slices_in_gui")));
         }
         return model;
     }

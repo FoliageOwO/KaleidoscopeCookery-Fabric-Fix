@@ -1,18 +1,10 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "tag": "c:cooked_rice"
-  },
+  "carrier": "#c:cooked_rice",
   "ingredients": [
-    {
-      "item": "minecraft:beetroot"
-    },
-    {
-      "tag": "c:raw_mutton"
-    },
-    {
-      "tag": "c:crops/tomato"
-    }
+    "minecraft:beetroot",
+    "#c:raw_mutton",
+    "#c:crops/tomato"
   ],
   "result": {
     "id": "farmersdelight:roasted_mutton_chops"

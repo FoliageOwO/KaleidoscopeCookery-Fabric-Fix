@@ -9,22 +9,22 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 
 public class ModCreativeTabs {
-    private static final ResourceLocation MAIN_ICON_ID = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "iron_kitchen_knife");
-    private static final ResourceLocation FOOD_ICON_ID = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "red_chili");
+    private static final Identifier MAIN_ICON_ID = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "iron_kitchen_knife");
+    private static final Identifier FOOD_ICON_ID = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "red_chili");
 
     private static final ResourceKey<CreativeModeTab> COOKERY_MAIN_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
-            ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cookery_main"));
+            Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cookery_main"));
     private static final ResourceKey<CreativeModeTab> COOKERY_FOOD_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
-            ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cookery_food"));
+            Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cookery_food"));
 
     public static void registerTabs() {
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, COOKERY_MAIN_TAB, FabricItemGroup.builder()
                 .title(Component.translatable("item_group.kaleidoscope_cookery.cookery_main.name"))
-                .icon(() -> BuiltInRegistries.ITEM.get(MAIN_ICON_ID).getDefaultInstance())
+                .icon(() -> BuiltInRegistries.ITEM.getValue(MAIN_ICON_ID).getDefaultInstance())
                 .displayItems((par, output) -> {
                     output.accept(ModItems.STOVE);
                     output.accept(ModItems.SHAWARMA_SPIT);
@@ -104,7 +104,7 @@ public class ModCreativeTabs {
 
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, COOKERY_FOOD_TAB, FabricItemGroup.builder()
                 .title(Component.translatable("item_group.kaleidoscope_cookery.cookery_food.name"))
-                .icon(() -> BuiltInRegistries.ITEM.get(FOOD_ICON_ID).getDefaultInstance())
+                .icon(() -> BuiltInRegistries.ITEM.getValue(FOOD_ICON_ID).getDefaultInstance())
                 .displayItems((par, output) -> {
                     output.accept(ModItems.TOMATO);
                     output.accept(ModItems.RED_CHILI);
@@ -172,7 +172,7 @@ public class ModCreativeTabs {
                         if (foodName.equals(FoodBiteRegistry.BROWN_MUSHROOM_POT_SOUP)) {
                             output.accept(ModItems.COLD_CUT_HAM_SLICES);
                         }
-                        var foodItem = BuiltInRegistries.ITEM.get(foodName);
+                        var foodItem = BuiltInRegistries.ITEM.getValue(foodName);
                         output.accept(foodItem);
                     });
                 }).build());

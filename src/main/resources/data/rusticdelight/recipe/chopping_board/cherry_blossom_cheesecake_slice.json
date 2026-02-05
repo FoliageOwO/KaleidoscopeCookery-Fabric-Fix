@@ -1,9 +1,7 @@
 {
   "type": "kaleidoscope_cookery:chopping_board",
   "cut_count": 2,
-  "ingredient": {
-    "item": "rusticdelight:cherry_blossom_cheesecake"
-  },
+  "ingredient": "rusticdelight:cherry_blossom_cheesecake",
   "model_id": "kaleidoscope_cookery:cherry_blossom_cheesecake",
   "result": {
     "count": 4,

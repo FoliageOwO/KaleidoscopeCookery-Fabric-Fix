@@ -14,10 +14,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -52,8 +52,8 @@ public class SteamerBlockEntityRender implements BlockEntityRenderer<SteamerBloc
                 continue;
             }
             BakedModel model;
-            Map<ResourceLocation, Object> map = ItemRenderReplacerReloadListener.INSTANCE.steamer();
-            ResourceLocation key = BuiltInRegistries.ITEM.getKey(stack.getItem());
+            Map<Identifier, Object> map = ItemRenderReplacerReloadListener.INSTANCE.steamer();
+            Identifier key = BuiltInRegistries.ITEM.getKey(stack.getItem());
             boolean hasCustom = map.containsKey(key);
             model = ItemRenderReplacer.getModel(steamer.getLevel(), stack, map);
 

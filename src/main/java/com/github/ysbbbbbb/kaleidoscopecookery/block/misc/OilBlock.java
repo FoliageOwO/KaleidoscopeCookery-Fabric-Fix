@@ -13,8 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 
 public class OilBlock extends Block {
-    public OilBlock() {
-        super(BlockBehaviour.Properties.of()
+    public OilBlock(Properties properties) {
+        super(properties
                 .mapColor(MapColor.ICE)
                 // 讨个好彩头，考上 985
                 .friction(0.985f)

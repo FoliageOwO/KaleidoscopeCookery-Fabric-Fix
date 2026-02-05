@@ -1,5 +1,6 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.effect;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.phys.AABB;
@@ -17,7 +18,7 @@ public class SulfurEffect extends BaseEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel level, LivingEntity livingEntity, int amplifier) {
         AABB aabb = new AABB(livingEntity.blockPosition()).inflate(8, 16, 8);
         List<Phantom> list = livingEntity.level().getEntitiesOfClass(Phantom.class, aabb);
         for (Phantom phantom : list) {

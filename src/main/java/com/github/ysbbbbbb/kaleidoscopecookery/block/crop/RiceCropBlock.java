@@ -12,7 +12,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.AbstractFish;
+import net.minecraft.world.entity.animal.fish.AbstractFish;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -24,6 +24,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -70,15 +71,13 @@ public class RiceCropBlock extends BaseCropBlock implements SimpleWaterloggedBlo
             Block.box(2, 0, 2, 14, 6, 14)
     };
 
-    public RiceCropBlock() {
-        super(() -> ModItems.RICE_PANICLE, () -> ModItems.RICE_SEED);
+    public RiceCropBlock(BlockBehaviour.Properties properties) {
+        super(properties, () -> ModItems.RICE_PANICLE, () -> ModItems.RICE_SEED);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(this.getAgeProperty(), 0)
                 .setValue(WATERLOGGED, false)
                 .setValue(LOCATION, DOWN));
     }
-
-    @Override
     public @NotNull BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
@@ -108,33 +107,26 @@ public class RiceCropBlock extends BaseCropBlock implements SimpleWaterloggedBlo
         }
         return state;
     }
-
-    @Override
     protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
         return super.mayPlaceOn(state, level, pos) || state.is(TagMod.RICE_PLANTABLE);
     }
 
     @Nullable
-    @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos blockPos = context.getClickedPos();
         Level level = context.getLevel();
         boolean isWaterlogged = level.getFluidState(blockPos).is(FluidTags.WATER);
         boolean aboveMatches = level.getBlockState(blockPos.above(MIDDLE)).isAir();
         boolean above2Matches = level.getBlockState(blockPos.above(UP)).isAir();
-        if (blockPos.getY() < level.getMaxBuildHeight() - 2 && isWaterlogged && aboveMatches && above2Matches) {
+        if (blockPos.getY() < level.getMaxY() - 2 && isWaterlogged && aboveMatches && above2Matches) {
             return this.defaultBlockState().setValue(WATERLOGGED, true);
         }
         return null;
     }
-
-    @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         level.setBlock(pos.above(MIDDLE), this.getStateForAge(0).setValue(LOCATION, MIDDLE), Block.UPDATE_ALL);
         level.setBlock(pos.above(UP), this.getStateForAge(0).setValue(LOCATION, UP), Block.UPDATE_ALL);
     }
-
-    @Override
     public boolean canSurvive(BlockState state, LevelReader levelReader, BlockPos pos) {
         if (levelReader.getRawBrightness(pos, 0) < 8 && !levelReader.canSeeSky(pos)) {
             return false;
@@ -158,8 +150,6 @@ public class RiceCropBlock extends BaseCropBlock implements SimpleWaterloggedBlo
         }
         return false;
     }
-
-    @Override
     public @NotNull VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext context) {
         if (!isThreeBlock(state) && state.getValue(LOCATION) == MIDDLE) {
             return SHAPE_BY_AGE[state.getValue(AGE)];
@@ -176,18 +166,14 @@ public class RiceCropBlock extends BaseCropBlock implements SimpleWaterloggedBlo
     private boolean isThreeBlock(BlockState state) {
         return state.is(this) && state.getValue(AGE) > 3;
     }
-
-    @Override
     public boolean isRandomlyTicking(BlockState state) {
         return super.isRandomlyTicking(state) && state.getValue(LOCATION) == DOWN;
     }
-
-    @Override
     public void randomTick(BlockState state, ServerLevel serverLevel, BlockPos pos, RandomSource random) {
         if (state.getValue(LOCATION) != DOWN) {
             return;
         }
-        if (serverLevel.isNight()) {
+        if (serverLevel.isDarkOutside()) {
             serverLevel.playSound(null,
                     pos.above(),
                     ModSounds.BLOCK_PADDY,
@@ -222,8 +208,6 @@ public class RiceCropBlock extends BaseCropBlock implements SimpleWaterloggedBlo
     private void setCropState(Level level, BlockPos startPos, int age) {
         level.setBlock(startPos, this.getStateForAge(age).setValue(WATERLOGGED, true), Block.UPDATE_CLIENTS);
     }
-
-    @Override
     public void growCrops(Level level, BlockPos pos, BlockState state) {
         int boneAge = this.getAge(state) + this.getBonemealAgeIncrease(level);
         int maxAge = this.getMaxAge();
@@ -232,36 +216,24 @@ public class RiceCropBlock extends BaseCropBlock implements SimpleWaterloggedBlo
         }
         setCropState(level, pos.below(state.getValue(LOCATION)), boneAge);
     }
-
-    @Override
     protected int getBonemealAgeIncrease(Level level) {
         return Mth.nextInt(level.random, 1, 2);
     }
-
-    @Override
     public @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         return InteractionResult.PASS;
     }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(AGE, LOCATION, WATERLOGGED);
     }
-
-    @Override
     public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
-
-    @Override
     public @NotNull List<ItemStack> getDrops(BlockState state, LootParams.Builder lootParamsBuilder) {
         if (state.getValue(LOCATION) != DOWN) {
             return Collections.emptyList();
         }
         return super.getDrops(state, lootParamsBuilder);
     }
-
-    @Override
     public @NotNull ItemStack pickupBlock(Player player, LevelAccessor levelAccessor, BlockPos pos, BlockState state) {
         if (state.getValue(BlockStateProperties.WATERLOGGED)) {
             levelAccessor.setBlock(pos, state.setValue(BlockStateProperties.WATERLOGGED, false), Block.UPDATE_ALL);

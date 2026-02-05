@@ -6,7 +6,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -23,8 +23,8 @@ public abstract class ModRecipeProvider extends RecipeProvider {
     public void buildRecipes(RecipeOutput consumer) {
     }
 
-    public ResourceLocation modLoc(String path) {
-        return ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, path);
+    public Identifier modLoc(String path) {
+        return Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, path);
     }
 
     public String getRecipeIdWithCount(ItemLike itemLike, int count) {

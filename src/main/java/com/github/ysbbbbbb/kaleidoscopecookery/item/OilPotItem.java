@@ -8,7 +8,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
@@ -16,18 +16,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 import static com.github.ysbbbbbb.kaleidoscopecookery.init.ModDataComponents.OIL_POT_OIL_COUNT;
 
 public class OilPotItem extends BlockItem {
-    public static final ResourceLocation HAS_OIL_PROPERTY = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "has_oil");
+    public static final Identifier HAS_OIL_PROPERTY = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "has_oil");
 
     private static final int NO_OIL = 0;
     private static final int HAS_OIL = 1;
 
-    public OilPotItem() {
-        super(ModBlocks.OIL_POT, new Properties().stacksTo(16));
+    public OilPotItem(Properties properties) {
+        super(ModBlocks.OIL_POT, properties.stacksTo(16));
     }
 
     public static void setOilCount(ItemStack stack, int count) {
@@ -65,13 +63,13 @@ public class OilPotItem extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack pStack, TooltipContext context, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+    public void appendHoverText(ItemStack pStack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, java.util.function.Consumer<Component> tooltip, TooltipFlag pIsAdvanced) {
         int oilCount = getOilCount(pStack);
         if (oilCount > 0) {
-            pTooltipComponents.add(Component.translatable("tooltip.kaleidoscope_cookery.oil_pot.count", oilCount)
+            tooltip.accept(Component.translatable("tooltip.kaleidoscope_cookery.oil_pot.count", oilCount)
                     .withStyle(ChatFormatting.GRAY));
         } else {
-            pTooltipComponents.add(Component.translatable("tooltip.kaleidoscope_cookery.oil_pot.empty")
+            tooltip.accept(Component.translatable("tooltip.kaleidoscope_cookery.oil_pot.empty")
                     .withStyle(ChatFormatting.GRAY));
         }
     }

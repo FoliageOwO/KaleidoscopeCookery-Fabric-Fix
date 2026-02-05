@@ -1,27 +1,30 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModRecipes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleItemRecipe;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 public class ChoppingBoardRecipe extends SingleItemRecipe {
     private final int cutCount;
-    private final ResourceLocation modelId;
+    private final Identifier modelId;
 
-    public ChoppingBoardRecipe(Ingredient ingredient, ItemStack result, int cutCount, ResourceLocation modelId) {
-        super(ModRecipes.CHOPPING_BOARD_RECIPE, ModRecipes.CHOPPING_BOARD_SERIALIZER, StringUtils.EMPTY, ingredient, result);
+    public ChoppingBoardRecipe(Ingredient ingredient, ItemStack result, int cutCount, Identifier modelId) {
+        super("", ingredient, result);
         this.cutCount = Math.max(cutCount, 1);
         this.modelId = modelId;
     }
 
     @Override
     public boolean matches(SingleRecipeInput inv, Level level) {
-        return this.ingredient.test(inv.getItem(0));
+        return this.input().test(inv.getItem(0));
     }
 
     @Override
@@ -30,18 +33,33 @@ public class ChoppingBoardRecipe extends SingleItemRecipe {
     }
 
     public Ingredient getIngredient() {
-        return this.ingredient;
+        return this.input();
     }
 
     public ItemStack getResult() {
-        return this.result;
+        return this.result();
     }
 
     public int getCutCount() {
         return cutCount;
     }
 
-    public ResourceLocation getModelId() {
+    public Identifier getModelId() {
         return modelId;
+    }
+
+    @Override
+    public @NotNull RecipeSerializer<? extends SingleItemRecipe> getSerializer() {
+        return ModRecipes.CHOPPING_BOARD_SERIALIZER;
+    }
+
+    @Override
+    public @NotNull RecipeType<? extends SingleItemRecipe> getType() {
+        return ModRecipes.CHOPPING_BOARD_RECIPE;
+    }
+
+    @Override
+    public @NotNull RecipeBookCategory recipeBookCategory() {
+        return new RecipeBookCategory();
     }
 }

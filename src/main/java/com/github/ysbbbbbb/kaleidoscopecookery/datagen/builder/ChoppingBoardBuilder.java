@@ -5,7 +5,7 @@ import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.ChoppingBoardReci
 import net.minecraft.advancements.Criterion;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +19,7 @@ public class ChoppingBoardBuilder implements RecipeBuilder {
     private Ingredient ingredient = Ingredient.EMPTY;
     private ItemStack result = ItemStack.EMPTY;
     private int cutCount = 3;
-    private ResourceLocation modelId;
+    private Identifier modelId;
 
     public static ChoppingBoardBuilder builder() {
         return new ChoppingBoardBuilder();
@@ -55,7 +55,7 @@ public class ChoppingBoardBuilder implements RecipeBuilder {
         return this;
     }
 
-    public ChoppingBoardBuilder setModelId(ResourceLocation modelId) {
+    public ChoppingBoardBuilder setModelId(Identifier modelId) {
         this.modelId = modelId;
         return this;
     }
@@ -78,18 +78,18 @@ public class ChoppingBoardBuilder implements RecipeBuilder {
     @Override
     public void save(RecipeOutput output) {
         String path = RecipeBuilder.getDefaultRecipeId(this.getResult()).getPath();
-        ResourceLocation filePath = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + path);
+        Identifier filePath = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + path);
         this.save(output, filePath);
     }
 
     @Override
     public void save(RecipeOutput output, String recipeId) {
-        ResourceLocation filePath = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + recipeId);
+        Identifier filePath = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + recipeId);
         this.save(output, filePath);
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput, ResourceLocation id) {
+    public void save(RecipeOutput recipeOutput, Identifier id) {
         ChoppingBoardRecipe recipe = new ChoppingBoardRecipe(this.ingredient, this.result, this.cutCount, this.modelId);
         recipeOutput.accept(id, recipe, null);
     }

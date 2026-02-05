@@ -5,21 +5,11 @@
   "finished_bubble_color": 193154107,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_light_brown",
   "ingredients": [
-    {
-      "item": "minecraft:carrot"
-    },
-    {
-      "item": "minecraft:brown_mushroom"
-    },
-    {
-      "tag": "c:pasta"
-    },
-    {
-      "tag": "c:crops/cabbage"
-    },
-    {
-      "tag": "c:crops"
-    }
+    "minecraft:carrot",
+    "minecraft:brown_mushroom",
+    "#c:pasta",
+    "#c:crops/cabbage",
+    "#c:crops"
   ],
   "result": {
     "id": "farmersdelight:vegetable_noodles"

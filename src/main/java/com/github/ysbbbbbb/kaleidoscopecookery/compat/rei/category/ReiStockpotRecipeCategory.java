@@ -24,7 +24,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import java.util.Optional;
 
 public class ReiStockpotRecipeCategory implements DisplayCategory<ReiStockpotRecipeCategory.StockpotRecipeDisplay> {
     public static final CategoryIdentifier<StockpotRecipeDisplay> ID = CategoryIdentifier.of(KaleidoscopeCookery.MOD_ID, "plugin/stockpot");
-    private static final ResourceLocation BG = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/gui/jei/stockpot.png");
+    private static final Identifier BG = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/gui/jei/stockpot.png");
     private static final MutableComponent TITLE = Component.translatable("block.kaleidoscope_cookery.stockpot");
     public static final int WIDTH = 176;
     public static final int HEIGHT = 102;
@@ -132,7 +132,7 @@ public class ReiStockpotRecipeCategory implements DisplayCategory<ReiStockpotRec
         public final EntryIngredient carrier;
         public final EntryIngredient soupBase;
 
-        public StockpotRecipeDisplay(ResourceLocation location, List<EntryIngredient> inputs, List<EntryIngredient> outputs, EntryIngredient carrier, EntryIngredient soupBase) {
+        public StockpotRecipeDisplay(Identifier location, List<EntryIngredient> inputs, List<EntryIngredient> outputs, EntryIngredient carrier, EntryIngredient soupBase) {
             super(inputs, outputs, Optional.of(location));
             this.carrier = carrier;
             this.soupBase = soupBase;

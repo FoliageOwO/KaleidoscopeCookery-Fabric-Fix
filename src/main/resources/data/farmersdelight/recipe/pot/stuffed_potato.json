@@ -1,15 +1,9 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "item": "minecraft:baked_potato"
-  },
+  "carrier": "minecraft:baked_potato",
   "ingredients": [
-    {
-      "tag": "c:raw_beef"
-    },
-    {
-      "tag": "c:milk"
-    }
+    "#c:raw_beef",
+    "#c:milk"
   ],
   "result": {
     "id": "farmersdelight:stuffed_potato"

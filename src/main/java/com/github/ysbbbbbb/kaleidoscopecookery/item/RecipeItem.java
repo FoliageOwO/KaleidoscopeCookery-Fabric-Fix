@@ -28,7 +28,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,15 +49,15 @@ import java.util.List;
 import java.util.Optional;
 
 public class RecipeItem extends BlockItem {
-    public static final ResourceLocation HAS_RECIPE_PROPERTY = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "has_recipe");
-    public static final ResourceLocation POT = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "pot");
-    public static final ResourceLocation STOCKPOT = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "stockpot");
+    public static final Identifier HAS_RECIPE_PROPERTY = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "has_recipe");
+    public static final Identifier POT = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "pot");
+    public static final Identifier STOCKPOT = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "stockpot");
 
     private static final int NO_RECIPE = 0;
     private static final int HAS_RECIPE = 1;
 
-    public RecipeItem() {
-        super(ModBlocks.RECIPE_BLOCK, new Item.Properties());
+    public RecipeItem(Item.Properties properties) {
+        super(ModBlocks.RECIPE_BLOCK, properties);
     }
 
     public static void setRecipe(ItemStack stack, RecipeRecord record) {
@@ -83,8 +83,6 @@ public class RecipeItem extends BlockItem {
         }
         return NO_RECIPE;
     }
-
-    @Override
     public @NotNull Component getName(ItemStack pStack) {
         if (hasRecipe(pStack)) {
             RecipeRecord recipe = getRecipe(pStack);
@@ -103,14 +101,12 @@ public class RecipeItem extends BlockItem {
         }
         return super.getName(pStack);
     }
-
-    @Override
     public @NotNull InteractionResult useOn(UseOnContext context) {
-        if (!context.getLevel().isClientSide) {
+        if (!context.getLevel().isClientSide()) {
             ItemStack itemInHand = context.getItemInHand();
             BlockPos clickedPos = context.getClickedPos();
             BlockEntity blockEntity = context.getLevel().getBlockEntity(clickedPos);
-            RecipeManager recipeManager = context.getLevel().getRecipeManager();
+            var recipeManager = context.getLevel().getServer() != null ? context.getLevel().getServer().getRecipeManager() : null;
             if (blockEntity == null) {
                 return super.useOn(context);
             }
@@ -122,6 +118,9 @@ public class RecipeItem extends BlockItem {
                 return this.onPutRecipe(blockEntity, player, itemInHand);
             } else {
                 InteractionHand hand = context.getHand();
+                if (recipeManager == null) {
+                    return super.useOn(context);
+                }
                 return this.onRecordRecipe(context.getLevel(), player, blockEntity, recipeManager, itemInHand, hand);
             }
         }
@@ -206,7 +205,7 @@ public class RecipeItem extends BlockItem {
                 i++;
             }
             if (!player.level().isClientSide()) {
-                player.sendSystemMessage(component);
+                player.displayClientMessage(component, false);
             }
             return InteractionResult.FAIL;
         }
@@ -314,8 +313,6 @@ public class RecipeItem extends BlockItem {
 
         return InteractionResult.PASS;
     }
-
-    @Override
     public @NotNull Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         if (hasRecipe(stack)) {
             RecipeRecord recipe = getRecipe(stack);
@@ -326,21 +323,18 @@ public class RecipeItem extends BlockItem {
         }
         return Optional.empty();
     }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.kaleidoscope_cookery.recipe_item").withStyle(ChatFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, java.util.function.Consumer<Component> tooltip, TooltipFlag flag) {
+        tooltip.accept(Component.translatable("tooltip.kaleidoscope_cookery.recipe_item").withStyle(ChatFormatting.GRAY));
     }
 
-    public record RecipeRecord(List<ItemStack> input, ItemStack output, ResourceLocation type) {
+    public record RecipeRecord(List<ItemStack> input, ItemStack output, Identifier type) {
         public static final Codec<RecipeRecord> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 ItemStack.OPTIONAL_CODEC.listOf().fieldOf("input").forGetter(RecipeRecord::input),
                 ItemStack.CODEC.fieldOf("output").forGetter(RecipeRecord::output),
-                ResourceLocation.CODEC.fieldOf("type").forGetter(RecipeRecord::type)
+                Identifier.CODEC.fieldOf("type").forGetter(RecipeRecord::type)
         ).apply(instance, RecipeRecord::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, RecipeRecord> STREAM_CODEC = new StreamCodec<>() {
-            @Override
             public @NotNull RecipeRecord decode(RegistryFriendlyByteBuf buffer) {
                 int size = buffer.readVarInt();
                 List<ItemStack> inputs = Lists.newArrayList();
@@ -348,18 +342,16 @@ public class RecipeItem extends BlockItem {
                     inputs.add(ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer));
                 }
                 ItemStack output = ItemStack.STREAM_CODEC.decode(buffer);
-                ResourceLocation type = buffer.readResourceLocation();
+                Identifier type = buffer.readIdentifier();
                 return new RecipeRecord(inputs, output, type);
             }
-
-            @Override
             public void encode(RegistryFriendlyByteBuf buffer, RecipeRecord value) {
                 buffer.writeVarInt(value.input().size());
                 for (ItemStack s : value.input()) {
                     ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, s);
                 }
                 ItemStack.STREAM_CODEC.encode(buffer, value.output());
-                buffer.writeResourceLocation(value.type());
+                buffer.writeIdentifier(value.type());
             }
         };
 

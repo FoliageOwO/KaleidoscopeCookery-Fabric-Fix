@@ -7,19 +7,20 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -30,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class FoodBiteBlock extends FoodBlock {
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     protected final FoodProperties foodProperties;
     protected final IntegerProperty bites;
@@ -39,8 +40,8 @@ public class FoodBiteBlock extends FoodBlock {
 
     protected VoxelShape aabb = FoodBlock.AABB;
 
-    public FoodBiteBlock(FoodProperties foodProperties, int maxBites, FoodBiteAnimateTicks.@Nullable AnimateTick animateTick) {
-        super();
+    public FoodBiteBlock(BlockBehaviour.Properties properties, FoodProperties foodProperties, int maxBites, FoodBiteAnimateTicks.@Nullable AnimateTick animateTick) {
+        super(properties);
         this.maxBites = maxBites;
         this.foodProperties = foodProperties;
         this.bites = IntegerProperty.create("bites", 0, maxBites);
@@ -52,8 +53,8 @@ public class FoodBiteBlock extends FoodBlock {
         this.registerDefaultState(this.stateDefinition.any().setValue(bites, 0).setValue(FACING, Direction.SOUTH));
     }
 
-    public FoodBiteBlock(FoodProperties foodProperties) {
-        this(foodProperties, 3, null);
+    public FoodBiteBlock(BlockBehaviour.Properties properties, FoodProperties foodProperties) {
+        this(properties, foodProperties, 3, null);
     }
 
     public IntegerProperty getBites() {
@@ -63,8 +64,6 @@ public class FoodBiteBlock extends FoodBlock {
     public int getMaxBites() {
         return maxBites;
     }
-
-    @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (animateTick != null) {
             animateTick.animateTick(state, level, pos, random);
@@ -75,15 +74,13 @@ public class FoodBiteBlock extends FoodBlock {
         this.aabb = aabb;
         return this;
     }
-
-    @Override
     public @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         int bites = state.getValue(this.bites);
         if (bites >= getMaxBites()) {
             level.destroyBlock(pos, true, player);
             return InteractionResult.SUCCESS;
         }
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if (eat(level, pos, state, player).consumesAction()) {
                 return InteractionResult.SUCCESS;
             }
@@ -96,12 +93,7 @@ public class FoodBiteBlock extends FoodBlock {
             return InteractionResult.PASS;
         }
         player.getFoodData().eat(foodProperties);
-        for (FoodProperties.PossibleEffect effect : foodProperties.effects()) {
-            if (!level.isClientSide && level.random.nextFloat() < effect.probability()) {
-                player.addEffect(new MobEffectInstance(effect.effect()));
-            }
-        }
-        level.playSound(null, pos, SoundEvents.GENERIC_EAT, SoundSource.PLAYERS,
+        level.playSound(null, pos, SoundEvents.GENERIC_EAT.value(), SoundSource.PLAYERS,
                 0.5F, level.getRandom().nextFloat() * 0.1F + 0.9F);
         int bites = state.getValue(this.bites);
         level.gameEvent(player, GameEvent.EAT, pos);
@@ -110,13 +102,9 @@ public class FoodBiteBlock extends FoodBlock {
         }
         return InteractionResult.SUCCESS;
     }
-
-    @Override
     public @NotNull VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         return this.aabb;
     }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
     }
@@ -124,35 +112,23 @@ public class FoodBiteBlock extends FoodBlock {
     protected void createBitesBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(bites, FACING);
     }
-
-    @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    public int getAnalogOutputSignal(BlockState state, LevelReader level, BlockPos pos) {
         int value = state.getValue(bites);
         return (3 - value) * 5;
     }
-
-    @Override
     public boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
-
-    @Override
     protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
         return false;
     }
-
-    @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
-
-    @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
-
-    @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }

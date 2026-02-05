@@ -1,33 +1,15 @@
 {
   "type": "kaleidoscope_cookery:pot",
-  "carrier": {
-    "item": "minecraft:bowl"
-  },
+  "carrier": "minecraft:bowl",
   "ingredients": [
-    {
-      "item": "farmersdelight:onion"
-    },
-    {
-      "tag": "c:eggs"
-    },
-    {
-      "tag": "c:bread"
-    },
-    {
-      "item": "minecraft:carrot"
-    },
-    {
-      "item": "minecraft:carrot"
-    },
-    {
-      "item": "minecraft:chicken"
-    },
-    {
-      "item": "minecraft:potato"
-    },
-    {
-      "item": "minecraft:potato"
-    }
+    "farmersdelight:onion",
+    "#c:eggs",
+    "#c:bread",
+    "minecraft:carrot",
+    "minecraft:carrot",
+    "minecraft:chicken",
+    "minecraft:potato",
+    "minecraft:potato"
   ],
   "result": {
     "id": "farmersdelight:roast_chicken"

@@ -11,7 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -34,7 +34,7 @@ public class FluidSoupBaseRender implements ISoupBaseRender {
     @Override
     public void renderWhenCooking(StockpotBlockEntity stockpot, float partialTick, PoseStack poseStack,
                                   MultiBufferSource buffer, int packedLight, int packedOverlay,
-                                  ResourceLocation cookingTexture, float soupHeight) {
+                                  Identifier cookingTexture, float soupHeight) {
         TextureAtlas atlas = Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS);
         TextureAtlasSprite sprite = atlas.getSprite(cookingTexture);
         ISoupBaseRender.renderSurface(sprite, 0xFFFFFFFF, poseStack, buffer, packedLight, soupHeight);
@@ -43,7 +43,7 @@ public class FluidSoupBaseRender implements ISoupBaseRender {
     @Override
     public void renderWhenFinished(StockpotBlockEntity stockpot, float partialTick, PoseStack poseStack,
                                    MultiBufferSource buffer, int packedLight, int packedOverlay,
-                                   ResourceLocation finishedTexture, float soupHeight) {
+                                   Identifier finishedTexture, float soupHeight) {
         TextureAtlas atlas = Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS);
         TextureAtlasSprite sprite = atlas.getSprite(finishedTexture);
         ISoupBaseRender.renderSurface(sprite, 0xFFFFFFFF, poseStack, buffer, packedLight, soupHeight);
@@ -60,7 +60,7 @@ public class FluidSoupBaseRender implements ISoupBaseRender {
         }
         // 如果没有找到渲染处理器，使用默认水纹理作为后备
         TextureAtlas atlas = Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS);
-        return atlas.getSprite(ResourceLocation.fromNamespaceAndPath("minecraft", "block/water_still"));
+        return atlas.getSprite(Identifier.fromNamespaceAndPath("minecraft", "block/water_still"));
     }
 
     private int getFluidColor(Fluid fluid) {

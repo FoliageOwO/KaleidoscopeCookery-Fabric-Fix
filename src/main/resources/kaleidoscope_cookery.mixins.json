@@ -4,26 +4,15 @@
   "package": "com.github.ysbbbbbb.kaleidoscopecookery.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "FallingBlockEntityMixin",
     "FarmBlockMixin",
     "ItemEntityMixin",
     "LayeredCauldronBlockMixin",
     "LivingEntityMixin",
     "MobBucketItemMixin",
     "PowderSnowBlockMixin",
-    "VillagerMixin",
-    "compact.RecipeParserMixin"
+    "VillagerMixin"
   ],
-  "client": [
-    "BlockEntityRendererMixin",
-    "GuiLayerRegistrationMixin",
-    "ItemRendererMixin",
-    "MCMixin",
-    "ModelBakeryMixin",
-    "PlayerRendererMixin",
-    "realize.HumanoidModelImplementationMixin",
-    "realize.HumanoidModelMixin"
-  ],
+  "client": [],
   "injectors": {
     "defaultRequire": 1
   }

@@ -2,10 +2,9 @@ package com.github.ysbbbbbb.kaleidoscopecookery.crafting.soupbase;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.api.client.render.ISoupBaseRender;
 import com.github.ysbbbbbb.kaleidoscopecookery.api.recipe.soupbase.ISoupBase;
-import com.github.ysbbbbbb.kaleidoscopecookery.client.render.soupbase.SimpleSoupBaseRender;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -14,10 +13,10 @@ import org.apache.commons.lang3.function.TriFunction;
 import java.util.function.Predicate;
 
 public class SimpleSoupBase implements ISoupBase {
-    protected final ResourceLocation name;
+    protected final Identifier name;
 
     protected final ItemStack displayStack;
-    protected final ResourceLocation soupBaseTexture;
+    protected final Identifier soupBaseTexture;
     protected final int bubbleColor;
 
     protected final Predicate<ItemStack> soupBasePredicate;
@@ -27,9 +26,9 @@ public class SimpleSoupBase implements ISoupBase {
     protected final TriFunction<Level, LivingEntity, ItemStack, ItemStack> returnSoupBaseFunction;
 
     public SimpleSoupBase(
-            ResourceLocation name,
+            Identifier name,
             ItemStack displayStack,
-            ResourceLocation soupBaseTexture,
+            Identifier soupBaseTexture,
             int bubbleColor,
             Predicate<ItemStack> soupBasePredicate,
             Predicate<ItemStack> containerPredicate,
@@ -47,7 +46,7 @@ public class SimpleSoupBase implements ISoupBase {
     }
 
     @Override
-    public ResourceLocation getName() {
+    public Identifier getName() {
         return name;
     }
 
@@ -84,6 +83,10 @@ public class SimpleSoupBase implements ISoupBase {
     @Override
     @Environment(EnvType.CLIENT)
     public ISoupBaseRender getRender() {
-        return new SimpleSoupBaseRender(soupBaseTexture);
+        return SoupBaseRenderFactory.create(
+                "com.github.ysbbbbbb.kaleidoscopecookery.client.render.soupbase.SimpleSoupBaseRender",
+                new Class[]{Identifier.class},
+                soupBaseTexture
+        );
     }
 }

@@ -11,7 +11,7 @@ import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.kitchen.PotBlockEntit
 import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.kitchen.SteamerBlockEntity;
 import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.kitchen.StockpotBlockEntity;
 import com.github.ysbbbbbb.kaleidoscopecookery.compat.jade.block.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
@@ -19,18 +19,18 @@ import snownee.jade.api.WailaPlugin;
 
 @WailaPlugin
 public class ModPlugin implements IWailaPlugin {
-    public static final ResourceLocation SHAWARMA_SPIT = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "shawarma_spit");
-    public static final ResourceLocation POT = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "pot");
-    public static final ResourceLocation STOCKPOT = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "stockpot");
-    public static final ResourceLocation CHOPPING_BOARD = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "chopping_board");
-    public static final ResourceLocation MILLSTONE = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "millstone");
-    public static final ResourceLocation ENAMEL_BASIN = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "enamel_basin");
-    public static final ResourceLocation TABLE = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "table");
-    public static final ResourceLocation FRUIT_BASKET = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "fruit_basket");
-    public static final ResourceLocation KITCHENWARE_RACK = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "kitchenware_rack");
-    public static final ResourceLocation OIL_POT = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "oil_pot");
-    public static final ResourceLocation RECIPE_BLOCK = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "recipe_block");
-    public static final ResourceLocation STEAMER = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "steamer");
+    public static final Identifier SHAWARMA_SPIT = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "shawarma_spit");
+    public static final Identifier POT = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "pot");
+    public static final Identifier STOCKPOT = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "stockpot");
+    public static final Identifier CHOPPING_BOARD = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "chopping_board");
+    public static final Identifier MILLSTONE = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "millstone");
+    public static final Identifier ENAMEL_BASIN = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "enamel_basin");
+    public static final Identifier TABLE = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "table");
+    public static final Identifier FRUIT_BASKET = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "fruit_basket");
+    public static final Identifier KITCHENWARE_RACK = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "kitchenware_rack");
+    public static final Identifier OIL_POT = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "oil_pot");
+    public static final Identifier RECIPE_BLOCK = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "recipe_block");
+    public static final Identifier STEAMER = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "steamer");
 
     @Override
     public void register(IWailaCommonRegistration registration) {

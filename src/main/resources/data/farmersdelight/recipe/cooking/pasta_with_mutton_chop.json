@@ -5,15 +5,9 @@
   "finished_bubble_color": 9127187,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_brown",
   "ingredients": [
-    {
-      "tag": "c:raw_mutton"
-    },
-    {
-      "tag": "c:pasta"
-    },
-    {
-      "item": "farmersdelight:tomato_sauce"
-    }
+    "#c:raw_mutton",
+    "#c:pasta",
+    "farmersdelight:tomato_sauce"
   ],
   "result": {
     "id": "farmersdelight:pasta_with_mutton_chop"

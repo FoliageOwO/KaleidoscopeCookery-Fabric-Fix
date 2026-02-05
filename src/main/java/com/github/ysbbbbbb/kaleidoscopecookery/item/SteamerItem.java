@@ -10,17 +10,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.ContainerHelper;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,12 +25,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class SteamerItem extends BlockItem {
-    public static final ResourceLocation HAS_ITEMS = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "has_items");
+    public static final Identifier HAS_ITEMS = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "has_items");
     private static final int NONE = 0;
     private static final int HAS = 1;
 
-    public SteamerItem() {
-        super(ModBlocks.STEAMER, new Properties());
+    public SteamerItem(Properties properties) {
+        super(ModBlocks.STEAMER, properties);
     }
 
     @Override
@@ -52,40 +47,23 @@ public class SteamerItem extends BlockItem {
         if (stack.is(this) && stack.getCount() == 1) {
             if (blockEntity instanceof SteamerBlockEntity steamer)
                 steamer.mergeItem(stack, context.getLevel());
-            else {
-                CompoundTag data = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
-                NonNullList<ItemStack> items = NonNullList.withSize(8, ItemStack.EMPTY);
-                ContainerHelper.loadAllItems(data, items, level.registryAccess());
-                if (!items.get(4).isEmpty()) { return context.getLevel().setBlock(context.getClickedPos(), state.setValue(SteamerBlock.HALF, false), 11); }
-            }
         }
         return super.placeBlock(context, state);
     }
 
     @Override
     public int getDefaultMaxStackSize() {
-        if (this.getDefaultInstance().has(DataComponents.BLOCK_ENTITY_DATA)) {
-            return 1;
-        }
         return super.getDefaultMaxStackSize();
     }
 
     @Environment(EnvType.CLIENT)
     public static float getTexture(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
-        CompoundTag data = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY).copyTag();
-        if (stack.has(DataComponents.BLOCK_ENTITY_DATA)) {
-            NonNullList<ItemStack> items = NonNullList.withSize(8, ItemStack.EMPTY);
-            if (level != null) {
-                ContainerHelper.loadAllItems(data, items, level.registryAccess());
-                if (!items.getFirst().isEmpty() || !items.get(4).isEmpty())
-                    return HAS;
-            }
-        }
+        // TODO 1.21.11: parse TypedEntityData<BlockEntityType<?>> for accurate state.
         return NONE;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.kaleidoscope_cookery.steamer").withStyle(ChatFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context, net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, java.util.function.Consumer<Component> tooltip, TooltipFlag flag) {
+        tooltip.accept(Component.translatable("tooltip.kaleidoscope_cookery.steamer").withStyle(ChatFormatting.GRAY));
     }
 }

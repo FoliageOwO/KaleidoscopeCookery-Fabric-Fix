@@ -8,20 +8,20 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import org.jetbrains.annotations.NotNull;
 
 public class ChoppingBoardRecipeSerializer implements RecipeSerializer<ChoppingBoardRecipe> {
-    public static final ResourceLocation EMPTY = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "empty");
+    public static final Identifier EMPTY = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "empty");
     public static final MapCodec<ChoppingBoardRecipe> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     Ingredient.CODEC.fieldOf("ingredient").forGetter(ChoppingBoardRecipe::getIngredient),
                     ItemStack.CODEC.fieldOf("result").forGetter(ChoppingBoardRecipe::getResult),
                     Codec.INT.optionalFieldOf("cut_count", 3).forGetter(ChoppingBoardRecipe::getCutCount),
-                    ResourceLocation.CODEC.optionalFieldOf("model_id", EMPTY).forGetter(ChoppingBoardRecipe::getModelId)
+                    Identifier.CODEC.optionalFieldOf("model_id", EMPTY).forGetter(ChoppingBoardRecipe::getModelId)
             ).apply(instance, ChoppingBoardRecipe::new)
     );
 
@@ -29,7 +29,7 @@ public class ChoppingBoardRecipeSerializer implements RecipeSerializer<ChoppingB
             Ingredient.CONTENTS_STREAM_CODEC, ChoppingBoardRecipe::getIngredient,
             ItemStack.STREAM_CODEC, ChoppingBoardRecipe::getResult,
             ByteBufCodecs.INT, ChoppingBoardRecipe::getCutCount,
-            ResourceLocation.STREAM_CODEC, ChoppingBoardRecipe::getModelId,
+            Identifier.STREAM_CODEC, ChoppingBoardRecipe::getModelId,
             ChoppingBoardRecipe::new);
 
     @Override

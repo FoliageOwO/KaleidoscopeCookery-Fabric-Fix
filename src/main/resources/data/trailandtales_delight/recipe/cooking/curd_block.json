@@ -5,24 +5,12 @@
   "finished_bubble_color": 16776960,
   "finished_texture": "kaleidoscope_cookery:stockpot/curd",
   "ingredients": [
-    {
-      "tag": "c:milk"
-    },
-    {
-      "tag": "c:milk"
-    },
-    {
-      "tag": "c:milk"
-    },
-    {
-      "tag": "c:milk"
-    },
-    {
-      "item": "minecraft:honey_bottle"
-    },
-    {
-      "item": "minecraft:honey_bottle"
-    }
+    "#c:milk",
+    "#c:milk",
+    "#c:milk",
+    "#c:milk",
+    "minecraft:honey_bottle",
+    "minecraft:honey_bottle"
   ],
   "result": {
     "id": "trailandtales_delight:curd_block"

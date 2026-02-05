@@ -5,12 +5,8 @@
   "finished_bubble_color": 193154107,
   "finished_texture": "kaleidoscope_cookery:stockpot/default_finished_light_brown",
   "ingredients": [
-    {
-      "item": "minecraft:bone"
-    },
-    {
-      "tag": "c:mushrooms"
-    }
+    "minecraft:bone",
+    "#c:mushrooms"
   ],
   "result": {
     "id": "farmersdelight:bone_broth"

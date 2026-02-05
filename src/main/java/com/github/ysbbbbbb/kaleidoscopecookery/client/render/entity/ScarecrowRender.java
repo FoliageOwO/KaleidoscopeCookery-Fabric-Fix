@@ -12,12 +12,12 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 @Environment(EnvType.CLIENT)
 public class ScarecrowRender extends LivingEntityRenderer<ScarecrowEntity, ScarecrowModel> {
-    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/entity/scarecrow.png");
+    public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/entity/scarecrow.png");
 
     public ScarecrowRender(EntityRendererProvider.Context context) {
         super(context, new ScarecrowModel(context.bakeLayer(ScarecrowModel.LAYER_LOCATION)), 0);
@@ -42,7 +42,7 @@ public class ScarecrowRender extends LivingEntityRenderer<ScarecrowEntity, Scare
     }
 
     @Override
-    public ResourceLocation getTextureLocation(ScarecrowEntity pEntity) {
+    public Identifier getTextureLocation(ScarecrowEntity pEntity) {
         return TEXTURE;
     }
 }

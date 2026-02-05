@@ -7,10 +7,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
@@ -18,6 +15,8 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class FruitBasketBlockEntity extends BaseBlockEntity {
     public static final String ITEMS = "BasketItems";
@@ -71,17 +70,16 @@ public class FruitBasketBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put(ITEMS, ContainerHelper.saveAllItems(new CompoundTag(), this.items.items, registries));
+    protected void saveAdditional(ValueOutput tag) {
+        super.saveAdditional(tag);
+        ContainerHelper.saveAllItems(tag.child(ITEMS), this.items.items);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains(ITEMS)) {
-            CompoundTag compound = tag.getCompound(ITEMS);
-            ContainerHelper.loadAllItems(compound, this.items.items, registries);
+    public void loadAdditional(ValueInput tag) {
+        super.loadAdditional(tag);
+        if (tag.child(ITEMS).isPresent()) {
+            ContainerHelper.loadAllItems(tag.childOrEmpty(ITEMS), this.items.items);
         }
     }
 
