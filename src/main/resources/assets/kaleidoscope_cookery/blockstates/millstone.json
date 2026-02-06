@@ -1,12 +1,7 @@
 {
-  "multipart": [
-    {
-      "when": {
-        "part": "center"
-      },
-      "apply": {
-        "model": "kaleidoscope_cookery:block/millstone_dummy"
-      }
+  "variants": {
+    "": {
+      "model": "kaleidoscope_cookery:block/millstone"
     }
-  ]
+  }
 }

@@ -218,10 +218,7 @@ public class MillstoneBlock extends HorizontalDirectionalBlock implements Entity
         return null;
     }
     public @NotNull RenderShape getRenderShape(BlockState state) {
-        if (state.getValue(PART).isCenter()) {
-            return RenderShape.MODEL;
-        }
-        return RenderShape.INVISIBLE;
+        return RenderShape.MODEL;
     }
     public @NotNull VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
         NinePart value = pState.getValue(PART);

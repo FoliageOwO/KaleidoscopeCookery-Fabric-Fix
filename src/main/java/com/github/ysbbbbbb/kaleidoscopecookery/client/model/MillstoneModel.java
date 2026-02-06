@@ -9,11 +9,13 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 @Environment(EnvType.CLIENT)
-public class MillstoneModel extends Model<BlockEntityRenderState> {
+public class MillstoneModel extends Model<MillstoneModel.State> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "millstone"), "main");
     private final ModelPart base;
     private final ModelPart wheel;
@@ -62,6 +64,14 @@ public class MillstoneModel extends Model<BlockEntityRenderState> {
         return LayerDefinition.create(meshdefinition, 128, 128);
     }
 
+    @Override
+    public void setupAnim(State object) {
+        super.setupAnim(object);
+        this.wheel.yRot = -object.rot * Mth.DEG_TO_RAD;
+        this.roll.zRot = object.rot * Mth.DEG_TO_RAD;
+        this.rotStick.xRot = -object.liftAngle * Mth.DEG_TO_RAD;
+    }
+
     public ModelPart getWheel() {
         return wheel;
     }
@@ -72,5 +82,9 @@ public class MillstoneModel extends Model<BlockEntityRenderState> {
 
     public ModelPart getRotStick() {
         return rotStick;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public record State(Level levelAccessor, boolean hasEntity, float cacheRot, float rot, ItemStack input, float liftAngle) {
     }
 }
