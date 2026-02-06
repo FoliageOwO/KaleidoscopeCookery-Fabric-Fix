@@ -6,10 +6,8 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.renderer.block.model.ModelIdentifier;
+import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -19,12 +17,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.function.Function;
 
-public record ItemRenderReplacer(Map<Identifier, Object> pot,
-                                 Map<Identifier, Object> stockpotCooking,
-                                 Map<Identifier, Object> stockpotFinished,
-                                 Map<Identifier, Object> millstone,
-                                 Map<Identifier, Object> steamer) {
-    public static final Codec<Object> RL_CODEC = Codec.STRING.comapFlatMap(ItemRenderReplacer::toLocation, ItemRenderReplacer::fromLocation).stable();
+public record ItemRenderReplacer(Map<Identifier, Identifier> pot,
+                                 Map<Identifier, Identifier> stockpotCooking,
+                                 Map<Identifier, Identifier> stockpotFinished,
+                                 Map<Identifier, Identifier> millstone,
+                                 Map<Identifier, Identifier> steamer) {
+    public static final Codec<Identifier> RL_CODEC = Codec.STRING.comapFlatMap(ItemRenderReplacer::toLocation, ItemRenderReplacer::fromLocation).stable();
     public static final Codec<ItemRenderReplacer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.unboundedMap(Identifier.CODEC, RL_CODEC).fieldOf("pot").forGetter(ItemRenderReplacer::pot),
             Codec.unboundedMap(Identifier.CODEC, RL_CODEC).fieldOf("stockpot_cooking").forGetter(ItemRenderReplacer::stockpotCooking),
@@ -33,22 +31,16 @@ public record ItemRenderReplacer(Map<Identifier, Object> pot,
             Codec.unboundedMap(Identifier.CODEC, RL_CODEC).fieldOf("steamer").forGetter(ItemRenderReplacer::steamer)
     ).apply(instance, ItemRenderReplacer::new));
 
-    private static Function<Object, BakedModel> CACHE = createNewCache();
+    private static Function<Identifier, ItemModel> CACHE = createNewCache();
 
     public ItemRenderReplacer() {
         this(Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap(), Maps.newHashMap());
     }
 
-    private static Function<Object, BakedModel> createNewCache() {
+    private static Function<Identifier, ItemModel> createNewCache() {
         return Util.memoize(id -> {
-            ModelManager modelManager = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getModelManager();
-            if (id instanceof ModelIdentifier modelRl) {
-                return modelManager.getModel(modelRl);
-            }
-            if (id instanceof Identifier rl) {
-                return modelManager.getModel(new ModelIdentifier(rl, "standalone"));
-            }
-            return modelManager.getMissingModel();
+            ModelManager modelManager = Minecraft.getInstance().getModelManager();
+            return modelManager.getItemModel(id);
         });
     }
 
@@ -56,26 +48,26 @@ public record ItemRenderReplacer(Map<Identifier, Object> pot,
         CACHE = createNewCache();
     }
 
-    public static BakedModel getModel(@Nullable Level level, ItemStack stack,
-                                      Map<Identifier, Object> models) {
-        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+    public static ItemModel getModel(@Nullable Level level, ItemStack stack,
+                                      Map<Identifier, Identifier> models) {
         Identifier key = BuiltInRegistries.ITEM.getKey(stack.getItem());
-        @Nullable Object location = models.get(key);
+        @Nullable Identifier location = models.get(key);
         if (location == null) {
-            return itemRenderer.getModel(stack, level, null, 0);
+            ModelManager modelManager = Minecraft.getInstance().getModelManager();
+            return modelManager.getItemModel(key);
         }
         return CACHE.apply(location);
     }
 
-    private static DataResult<Object> toLocation(String input) {
+    private static DataResult<Identifier> toLocation(String input) {
         String[] split = input.split("#");
         if (split.length > 1) {
-            return DataResult.success(new ModelIdentifier(Identifier.parse(split[0]), split[1]));
+            return DataResult.success(Identifier.parse(split[0]));
         }
         return DataResult.success(Identifier.parse(input));
     }
 
-    private static String fromLocation(Object input) {
+    private static String fromLocation(Identifier input) {
         return input.toString();
     }
 
@@ -85,5 +77,13 @@ public record ItemRenderReplacer(Map<Identifier, Object> pot,
         this.stockpotFinished.putAll(other.stockpotFinished);
         this.millstone.putAll(other.millstone);
         this.steamer.putAll(other.steamer);
+    }
+
+    public void clear() {
+        this.pot.clear();
+        this.stockpotCooking.clear();
+        this.stockpotFinished.clear();
+        this.millstone.clear();
+        this.steamer.clear();
     }
 }

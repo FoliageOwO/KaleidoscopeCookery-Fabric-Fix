@@ -30,7 +30,11 @@ public class OilPotItem extends BlockItem {
 
     public static void setOilCount(ItemStack stack, int count) {
         count = Mth.clamp(count, 0, OilPotBlockEntity.MAX_OIL_COUNT);
-        stack.set(OIL_POT_OIL_COUNT, count);
+        if (count <= 0) {
+            stack.remove(OIL_POT_OIL_COUNT);
+        } else {
+            stack.set(OIL_POT_OIL_COUNT, count);
+        }
     }
 
     public static int getOilCount(ItemStack stack) {

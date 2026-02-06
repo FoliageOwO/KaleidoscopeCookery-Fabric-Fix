@@ -1,8 +1,6 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.client.model;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.KaleidoscopeCookery;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.EntityModel;
@@ -10,15 +8,17 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.Entity;
 
 @Environment(EnvType.CLIENT)
-public class StrawHatModel extends EntityModel<Entity> {
+public class StrawHatModel extends EntityModel<EntityRenderState> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "straw_hat"), "main");
     private final ModelPart head;
 
     public StrawHatModel(ModelPart root) {
+        super(root, RenderTypes::entityCutoutNoCull);
         this.head = root.getChild("head");
     }
 
@@ -36,15 +36,7 @@ public class StrawHatModel extends EntityModel<Entity> {
     }
 
     @Override
-    public void setupAnim(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-    }
-
-    @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
-        poseStack.pushPose();
-        poseStack.scale(1.275f, 1.275f, 1.275f);
-        head.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
-        poseStack.popPose();
+    public void setupAnim(EntityRenderState state) {
     }
 
     public ModelPart getHead() {

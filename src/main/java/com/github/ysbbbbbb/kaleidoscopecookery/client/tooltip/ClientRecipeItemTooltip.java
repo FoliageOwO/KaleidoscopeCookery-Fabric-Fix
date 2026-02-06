@@ -22,7 +22,7 @@ public class ClientRecipeItemTooltip implements ClientTooltipComponent {
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(Font font) {
         return 28;
     }
 
@@ -34,7 +34,7 @@ public class ClientRecipeItemTooltip implements ClientTooltipComponent {
     }
 
     @Override
-    public void renderImage(Font font, int pX, int pY, GuiGraphics guiGraphics) {
+    public void renderImage(Font font, int pX, int pY, int width, int height, GuiGraphics guiGraphics) {
         int ingredientsWidth = font.width(ingredientsText);
         int outputWidth = font.width(outputText);
 

@@ -89,6 +89,9 @@ public class ChairBlock extends HorizontalDirectionalBlock implements SimpleWate
     @Override
     public @NotNull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         ItemStack itemInHand = player.getItemInHand(hand);
+        if (itemInHand.isEmpty() && level.isClientSide()) {
+            return InteractionResult.PASS;
+        }
         if (hand == InteractionHand.MAIN_HAND) {
             if (itemInHand.is(ItemTags.WOOL_CARPETS))
                 return useWithCarpets(state, level, pos, player, itemInHand);
@@ -104,17 +107,42 @@ public class ChairBlock extends HorizontalDirectionalBlock implements SimpleWate
         return tryToSitOn(state, level, pos, player);
     }
 
+    @Override
+    public @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        return tryToSitOn(state, level, pos, player);
+    }
+
     @NotNull
     private InteractionResult tryToSitOn(BlockState state, Level level, BlockPos pos, Player player) {
-        List<SitEntity> entities = level.getEntitiesOfClass(SitEntity.class, new AABB(pos));
-        if (entities.isEmpty()) {
-            SitEntity entitySit = new SitEntity(level, pos, 0.5125);
-            entitySit.setYRot(state.getValue(FACING).toYRot());
-            level.addFreshEntity(entitySit);
-            player.startRiding(entitySit, true, true);
-            return InteractionResult.SUCCESS;
+        if (level.isClientSide()) {
+            // Let the server handle creating the seat entity.
+            return InteractionResult.PASS;
         }
-        return InteractionResult.PASS;
+        List<SitEntity> entities = level.getEntitiesOfClass(SitEntity.class, new AABB(pos));
+        if (!entities.isEmpty()) {
+            SitEntity existing = entities.get(0);
+            if (existing.isRemoved()) {
+                existing.discard();
+            } else if (existing.getPassengers().isEmpty()) {
+                if (player.startRiding(existing, true, true)) {
+                    return InteractionResult.CONSUME;
+                }
+            } else if (existing.hasPassenger(player)) {
+                return InteractionResult.CONSUME;
+            }
+        }
+
+        SitEntity entitySit = new SitEntity(level, pos, 0.5125);
+        entitySit.setYRot(state.getValue(FACING).toYRot());
+        if (!level.addFreshEntity(entitySit)) {
+            return InteractionResult.PASS;
+        }
+        boolean mounted = player.startRiding(entitySit, true, true);
+        if (!mounted) {
+            entitySit.discard();
+            return InteractionResult.PASS;
+        }
+        return InteractionResult.CONSUME;
     }
 
     @NotNull

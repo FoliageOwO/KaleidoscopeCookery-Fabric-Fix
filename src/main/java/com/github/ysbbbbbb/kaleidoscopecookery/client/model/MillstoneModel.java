@@ -1,8 +1,6 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.client.model;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.KaleidoscopeCookery;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.Model;
@@ -10,11 +8,12 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.resources.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class MillstoneModel extends Model {
+public class MillstoneModel extends Model<BlockEntityRenderState> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "millstone"), "main");
     private final ModelPart base;
     private final ModelPart wheel;
@@ -23,7 +22,7 @@ public class MillstoneModel extends Model {
     private final ModelPart rotStick;
 
     public MillstoneModel(ModelPart root) {
-        super(RenderType::entityCutoutNoCull);
+        super(root, RenderTypes::entityCutoutNoCull);
         this.base = root.getChild("base");
         this.wheel = root.getChild("wheel");
         this.roll = this.wheel.getChild("roll");
@@ -61,12 +60,6 @@ public class MillstoneModel extends Model {
         PartDefinition cube_r5 = rotStick.addOrReplaceChild("cube_r5", CubeListBuilder.create().texOffs(111, 84).addBox(-2.0F, -17.5F, -2.0F, 4.0F, 30.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 3.5F, 0.0F, 0.0F, -0.7854F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 128, 128);
-    }
-
-    @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
-        base.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
-        wheel.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 
     public ModelPart getWheel() {

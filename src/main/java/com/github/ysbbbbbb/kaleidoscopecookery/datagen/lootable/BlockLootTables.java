@@ -12,6 +12,7 @@ import com.github.ysbbbbbb.kaleidoscopecookery.loot.AdvanceBlockMatchTool;
 import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.BlockLootSubProvider;
@@ -202,7 +203,7 @@ public class BlockLootTables extends BlockLootSubProvider {
     }
 
     private LootPoolSingletonContainer.Builder<?> getSeed(ItemLike item, float probability) {
-        ItemPredicate hasHat = ItemPredicate.Builder.item().of(TagMod.STRAW_HAT).build();
+        ItemPredicate hasHat = ItemPredicate.Builder.item().of(this.registries.lookupOrThrow(Registries.ITEM), TagMod.STRAW_HAT).build();
         LootItemCondition.Builder hatMatches = AdvanceBlockMatchTool.toolMatches(EquipmentSlot.HEAD, hasHat);
         return LootItem.lootTableItem(item)
                 .when(LootItemRandomChanceCondition.randomChance(probability)).when(hatMatches)
@@ -233,8 +234,16 @@ public class BlockLootTables extends BlockLootSubProvider {
     }
 
     private void dropFoodBite(Identifier id, FoodBiteRegistry.FoodData data) {
-        Block block = BuiltInRegistries.BLOCK.get(id);
-        Item food = BuiltInRegistries.ITEM.get(id);
+        var blockRef = BuiltInRegistries.BLOCK.get(id);
+        var itemRef = BuiltInRegistries.ITEM.get(id);
+        if (blockRef.isEmpty() || itemRef.isEmpty()) {
+            return;
+        }
+        Block block = blockRef.map(Holder.Reference::value).orElse(null);
+        Item food = itemRef.map(Holder.Reference::value).orElse(null);
+        if (block == null || food == null) {
+            return;
+        }
         if (!(block instanceof FoodBiteBlock foodBiteBlock)) {
             return;
         }

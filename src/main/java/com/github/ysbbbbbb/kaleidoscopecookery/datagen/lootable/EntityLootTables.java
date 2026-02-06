@@ -39,7 +39,7 @@ public class EntityLootTables extends EntityLootSubProvider {
         super.generate(output);
 
         // 厨具刀杀猪掉油
-        ItemPredicate hasKnife = ItemPredicate.Builder.item().of(TagMod.KITCHEN_KNIFE).build();
+        ItemPredicate hasKnife = ItemPredicate.Builder.item().of(this.registries.lookupOrThrow(Registries.ITEM), TagMod.KITCHEN_KNIFE).build();
         LootItemCondition.Builder toolMatches = AdvanceEntityMatchTool.toolMatches(EquipmentSlot.MAINHAND, hasKnife);
         var count = SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F));
         var looting = EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F));
@@ -70,12 +70,12 @@ public class EntityLootTables extends EntityLootSubProvider {
     }
 
     @Override
-    protected void add(EntityType<?> type, LootTable.Builder builder) {
-        this.add(type, type.getDefaultLootTable(), builder);
+    public void add(EntityType<?> type, LootTable.Builder builder) {
+        type.getDefaultLootTable().ifPresent(key -> this.add(type, key, builder));
     }
 
     @Override
-    protected void add(EntityType<?> type, ResourceKey<LootTable> lootTable, LootTable.Builder builder) {
+    public void add(EntityType<?> type, ResourceKey<LootTable> lootTable, LootTable.Builder builder) {
         super.add(type, lootTable, builder);
         knownEntities.add(type);
     }

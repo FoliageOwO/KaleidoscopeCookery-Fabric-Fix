@@ -2,25 +2,36 @@ package com.github.ysbbbbbb.kaleidoscopecookery.datagen.recipe;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.KaleidoscopeCookery;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
+import net.minecraft.core.HolderLookup.RegistryLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
-
 public abstract class ModRecipeProvider extends RecipeProvider {
-    public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    protected final HolderLookup.Provider registries;
+
+    public ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
+        this.registries = registries;
     }
 
     @Override
-    public void buildRecipes(RecipeOutput consumer) {
+    public void buildRecipes() {
+    }
+
+    protected RegistryLookup<Item> itemLookup() {
+        return this.registries.lookupOrThrow(Registries.ITEM);
+    }
+
+    protected Ingredient ingredient(TagKey<Item> tag) {
+        return Ingredient.of(itemLookup().getOrThrow(tag));
     }
 
     public Identifier modLoc(String path) {

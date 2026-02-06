@@ -1,36 +1,57 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.client.render.block;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.kitchen.PotBlockEntity;
+import com.github.ysbbbbbb.kaleidoscopecookery.client.render.RenderItemUtil;
 import com.github.ysbbbbbb.kaleidoscopecookery.client.resources.ItemRenderReplacer;
 import com.github.ysbbbbbb.kaleidoscopecookery.client.resources.ItemRenderReplacerReloadListener;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class PotBlockEntityRender implements BlockEntityRenderer<PotBlockEntity> {
+public class PotBlockEntityRender implements BlockEntityRenderer<PotBlockEntity, PotBlockEntityRender.PotRenderState> {
     private final BlockEntityRendererProvider.Context context;
+    private final ItemModelResolver itemModelResolver;
 
     public PotBlockEntityRender(BlockEntityRendererProvider.Context context) {
         this.context = context;
+        this.itemModelResolver = context.itemModelResolver();
     }
 
     @Override
-    public void render(PotBlockEntity pot, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
+    public PotRenderState createRenderState() {
+        return new PotRenderState();
+    }
+
+    @Override
+    public void extractRenderState(PotBlockEntity pot, PotRenderState state, float partialTick, Vec3 cameraPos, ModelFeatureRenderer.CrumblingOverlay breakProgress) {
+        BlockEntityRenderState.extractBase(pot, state, breakProgress);
+        Level level = pot.getLevel();
+        if (level == null) {
+            state.clearItems();
+            return;
+        }
+
         RandomSource source = RandomSource.create(pot.getSeed());
         PotBlockEntity.StirFryAnimationData data = pot.animationData;
         long time = System.currentTimeMillis() - data.timestamp;
@@ -49,56 +70,91 @@ public class PotBlockEntityRender implements BlockEntityRenderer<PotBlockEntity>
             }
         }
 
-        ItemRenderer itemRenderer = this.context.getItemRenderer();
-        int rotation = pot.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING).get2DDataValue() * 90;
+        state.rotation = pot.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING).get2DDataValue() * 90;
+        state.seed = pot.getSeed();
+        state.randomHeights = data.randomHeights;
+        state.time = time;
+        state.status = pot.getStatus();
+        state.currentTick = pot.getCurrentTick();
 
+        boolean showInputs = pot.getStatus() != PotBlockEntity.FINISHED && pot.getStatus() != PotBlockEntity.BURNT;
+        List<ItemStack> stacks = showInputs || pot.hasCarrier() ? pot.getInputs() : List.of(pot.getResult());
+
+        state.ensureItemCapacity(stacks.size());
+        ItemOwner owner = RenderItemUtil.blockItemOwner(level, Vec3.atCenterOf(pot.getBlockPos()), state.rotation);
+        for (int i = 0; i < stacks.size(); i++) {
+            ItemStack stack = stacks.get(i);
+            ItemStackRenderState itemState = state.itemStates.get(i);
+            RenderItemUtil.updateItemState(
+                    itemState,
+                    stack,
+                    itemModelResolver,
+                    ItemRenderReplacer.getModel(level, stack, ItemRenderReplacerReloadListener.INSTANCE.pot()),
+                    ItemDisplayContext.FIXED,
+                    level,
+                    owner,
+                    i
+            );
+        }
+        state.itemCount = stacks.size();
+    }
+
+    @Override
+    public void submit(PotRenderState state, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
+        if (state.itemCount == 0) {
+            return;
+        }
+
+        RandomSource source = RandomSource.create(state.seed);
         poseStack.pushPose();
         poseStack.translate(0.5, 0.1, 0.5);
-        poseStack.mulPose(Axis.YN.rotationDegrees(rotation));
+        poseStack.mulPose(Axis.YN.rotationDegrees(state.rotation));
         poseStack.mulPose(Axis.XN.rotationDegrees(90));
         poseStack.scale(0.5f, 0.5f, 0.5f);
 
-        // 炒菜阶段，或者炒完，但是需要碗才能装的菜，只渲染原材料
-        boolean showInputs = pot.getStatus() != PotBlockEntity.FINISHED && pot.getStatus() != PotBlockEntity.BURNT;
-        if (showInputs || pot.hasCarrier()) {
-            List<ItemStack> items = pot.getInputs();
-            for (int i = 0; i < items.size(); i++) {
-                ItemStack item = items.get(i);
-                if (!item.isEmpty()) {
-                    renderItem(pot, poseStack, buffer, packedLight, packedOverlay, source, i, time, data, itemRenderer, item);
-                    poseStack.translate(0, 0, 0.025);
-                }
+        for (int i = 0; i < state.itemCount; i++) {
+            ItemStackRenderState itemState = state.itemStates.get(i);
+            if (itemState.isEmpty()) {
+                continue;
             }
-        } else {
-            // 结束阶段，并且不需要碗的菜，直接渲染结果
-            renderItem(pot, poseStack, buffer, packedLight, packedOverlay, source, 0, time, data, itemRenderer, pot.getResult());
+
+            poseStack.pushPose();
+            int count = 90 + source.nextInt(90);
+            poseStack.mulPose(Axis.ZN.rotationDegrees(i * count));
+            if (state.time < 1000 && state.randomHeights != null && i < state.randomHeights.length) {
+                poseStack.translate(0, 0, state.randomHeights[i] * Mth.sin(Mth.PI * state.time / 1000f));
+                poseStack.mulPose(Axis.XN.rotationDegrees(720f / 1000f * state.time));
+            }
+            itemState.submit(poseStack, collector, state.lightCoords, 0, 0);
+            poseStack.popPose();
+
+            poseStack.translate(0, 0, 0.025);
         }
 
         poseStack.popPose();
     }
 
-    private void renderItem(PotBlockEntity pot, PoseStack poseStack, MultiBufferSource buffer,
-                            int packedLight, int packedOverlay, RandomSource source, int index,
-                            long time, PotBlockEntity.StirFryAnimationData data,
-                            ItemRenderer itemRenderer, ItemStack item) {
-        poseStack.pushPose();
+    public static class PotRenderState extends BlockEntityRenderState {
+        public int rotation;
+        public long time;
+        public int status;
+        public int currentTick;
+        public long seed;
+        public float[] randomHeights;
+        public final List<ItemStackRenderState> itemStates = new ArrayList<>();
+        public int itemCount;
 
-        int count = 90 + source.nextInt(90);
-        poseStack.mulPose(Axis.ZN.rotationDegrees(index * count));
-        if (time < 1000) {
-            poseStack.translate(0, 0, data.randomHeights[index] * Mth.sin(Mth.PI * time / 1000f));
-            poseStack.mulPose(Axis.XN.rotationDegrees(720f / 1000 * time));
-        }
-        // 焦糊程度，菜变黑
-        if (pot.getStatus() == PotBlockEntity.BURNT) {
-            int tick = pot.getCurrentTick();
-            int burntLevel = Mth.clamp(tick / 25, 0, 16);
-            packedLight = OverlayTexture.u(burntLevel);
+        void ensureItemCapacity(int count) {
+            while (itemStates.size() < count) {
+                itemStates.add(new ItemStackRenderState());
+            }
         }
 
-        BakedModel model = ItemRenderReplacer.getModel(pot.getLevel(), item, ItemRenderReplacerReloadListener.INSTANCE.pot());
-        itemRenderer.render(item, ItemDisplayContext.FIXED, false, poseStack, buffer, packedLight, packedOverlay, model);
-
-        poseStack.popPose();
+        void clearItems() {
+            itemCount = 0;
+            for (ItemStackRenderState state : itemStates) {
+                state.clear();
+            }
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.github.ysbbbbbb.kaleidoscopecookery.client.render.soupbase;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.kitchen.StockpotBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -11,6 +10,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.material.Fluid;
 
 @Environment(EnvType.CLIENT)
@@ -46,24 +46,13 @@ public class MobSoupBaseRender extends FluidSoupBaseRender {
         Entity renderEntity = stockpot.renderEntity;
         boolean shouldRefreshCache = renderEntity == null || renderEntity.getType() != mobType;
         if (shouldRefreshCache) {
-            stockpot.renderEntity = mobType.create(world);
+            stockpot.renderEntity = mobType.create(world, EntitySpawnReason.TRIGGERED);
             if (stockpot.renderEntity != null) {
                 stockpot.renderEntity.setOnGround(true);
             }
         }
 
-        if (stockpot.renderEntity != null) {
-            int random = stockpot.renderEntity.hashCode();
-            float entityY = (float) (Math.sin(random + System.currentTimeMillis() * 0.0005) * 0.25);
-
-            poseStack.pushPose();
-            poseStack.translate(0.5, 0.5, 0.5);
-            poseStack.mulPose(Axis.YP.rotationDegrees(random % 360));
-            poseStack.translate(-0.5, -0.5, -0.5);
-            poseStack.scale(0.5f, 0.5f, 0.5f);
-            Minecraft.getInstance().getEntityRenderDispatcher().render(stockpot.renderEntity, 1, 0.375f + entityY, 1,
-                    0, 0, poseStack, buffer, packedLight);
-            poseStack.popPose();
-        }
+        // EntityRenderDispatcher render pipeline changed in 1.21.11; this is a cosmetic effect.
+        // Keep the entity cached, but skip rendering to avoid crashes.
     }
 }

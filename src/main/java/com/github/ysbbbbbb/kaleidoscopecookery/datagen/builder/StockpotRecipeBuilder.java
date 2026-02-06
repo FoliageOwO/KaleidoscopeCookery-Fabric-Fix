@@ -5,22 +5,28 @@ import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.StockpotRecipe;
 import com.github.ysbbbbbb.kaleidoscopecookery.crafting.serializer.StockpotRecipeSerializer;
 import com.google.common.collect.Lists;
 import net.minecraft.advancements.Criterion;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.RegistryLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 
 public class StockpotRecipeBuilder implements RecipeBuilder {
     private static final String NAME = "stockpot";
+    private final RegistryLookup<Item> items;
     private List<Ingredient> ingredients = Lists.newArrayList();
     private ItemStack result = ItemStack.EMPTY;
     private int time = StockpotRecipeSerializer.DEFAULT_TIME;
@@ -31,8 +37,12 @@ public class StockpotRecipeBuilder implements RecipeBuilder {
     private int cookingBubbleColor = StockpotRecipeSerializer.DEFAULT_COOKING_BUBBLE_COLOR;
     private int finishedBubbleColor = StockpotRecipeSerializer.DEFAULT_FINISHED_BUBBLE_COLOR;
 
-    public static StockpotRecipeBuilder builder() {
-        return new StockpotRecipeBuilder();
+    private StockpotRecipeBuilder(RegistryLookup<Item> items) {
+        this.items = items;
+    }
+
+    public static StockpotRecipeBuilder builder(HolderLookup.Provider registries) {
+        return new StockpotRecipeBuilder(registries.lookupOrThrow(Registries.ITEM));
     }
 
     @SuppressWarnings("all")
@@ -41,9 +51,11 @@ public class StockpotRecipeBuilder implements RecipeBuilder {
             if (ingredient instanceof ItemLike itemLike) {
                 this.ingredients.add(Ingredient.of(itemLike));
             } else if (ingredient instanceof ItemStack stack) {
-                this.ingredients.add(Ingredient.of(stack));
-            } else if (ingredient instanceof TagKey tagKey) {
-                this.ingredients.add(Ingredient.of(tagKey));
+                this.ingredients.add(Ingredient.of(stack.getItem()));
+            } else if (ingredient instanceof TagKey<?> tagKey) {
+                @SuppressWarnings("unchecked")
+                TagKey<Item> itemTag = (TagKey<Item>) tagKey;
+                this.ingredients.add(Ingredient.of(items.getOrThrow(itemTag)));
             } else if (ingredient instanceof Ingredient ingredientObj) {
                 this.ingredients.add(ingredientObj);
             }
@@ -66,7 +78,7 @@ public class StockpotRecipeBuilder implements RecipeBuilder {
     }
 
     public StockpotRecipeBuilder setResult(Identifier result) {
-        this.result = new ItemStack(Objects.requireNonNull(BuiltInRegistries.ITEM.get(result)));
+        this.result = new ItemStack(BuiltInRegistries.ITEM.get(result).map(Holder.Reference::value).orElseThrow());
         return this;
     }
 
@@ -130,17 +142,17 @@ public class StockpotRecipeBuilder implements RecipeBuilder {
     public void save(RecipeOutput output) {
         String path = RecipeBuilder.getDefaultRecipeId(this.getResult()).getPath();
         Identifier filePath = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + path);
-        this.save(output, filePath);
+        this.save(output, ResourceKey.create(Registries.RECIPE, filePath));
     }
 
     @Override
     public void save(RecipeOutput output, String recipeId) {
         Identifier filePath = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + recipeId);
-        this.save(output, filePath);
+        this.save(output, ResourceKey.create(Registries.RECIPE, filePath));
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput, Identifier id) {
+    public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> id) {
         recipeOutput.accept(id, new StockpotRecipe(this.ingredients, this.soupBase, this.result, this.time, this.carrier,
                 this.cookingTexture, this.finishedTexture, this.cookingBubbleColor, this.finishedBubbleColor), null);
     }

@@ -5,8 +5,10 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -70,15 +72,43 @@ public class CookStoolBlock extends HorizontalDirectionalBlock implements Simple
 
     @Override
     public @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        List<SitEntity> entities = level.getEntitiesOfClass(SitEntity.class, new AABB(pos));
-        if (entities.isEmpty()) {
-            SitEntity entitySit = new SitEntity(level, pos);
-            entitySit.setYRot(state.getValue(FACING).toYRot());
-            level.addFreshEntity(entitySit);
-            player.startRiding(entitySit, true, true);
-            return InteractionResult.SUCCESS;
+        if (level.isClientSide()) {
+            // Let the server handle creating the seat entity.
+            return InteractionResult.PASS;
         }
-        return super.useWithoutItem(state, level, pos, player, hitResult);
+        List<SitEntity> entities = level.getEntitiesOfClass(SitEntity.class, new AABB(pos));
+        if (!entities.isEmpty()) {
+            SitEntity existing = entities.get(0);
+            if (existing.isRemoved()) {
+                existing.discard();
+            } else if (existing.getPassengers().isEmpty()) {
+                if (player.startRiding(existing, true, true)) {
+                    return InteractionResult.CONSUME;
+                }
+            } else if (existing.hasPassenger(player)) {
+                return InteractionResult.CONSUME;
+            }
+        }
+
+        SitEntity entitySit = new SitEntity(level, pos);
+        entitySit.setYRot(state.getValue(FACING).toYRot());
+        if (!level.addFreshEntity(entitySit)) {
+            return InteractionResult.PASS;
+        }
+        boolean mounted = player.startRiding(entitySit, true, true);
+        if (!mounted) {
+            entitySit.discard();
+            return InteractionResult.PASS;
+        }
+        return InteractionResult.CONSUME;
+    }
+
+    @Override
+    public @NotNull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (stack.isEmpty()) {
+            return useWithoutItem(state, level, pos, player, hitResult);
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     @Override

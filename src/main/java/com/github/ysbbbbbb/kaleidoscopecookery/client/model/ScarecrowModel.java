@@ -1,9 +1,6 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.client.model;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.KaleidoscopeCookery;
-import com.github.ysbbbbbb.kaleidoscopecookery.entity.ScarecrowEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ArmedModel;
@@ -13,13 +10,13 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
-public class ScarecrowModel extends EntityModel<ScarecrowEntity> implements ArmedModel, HeadedModel {
+public class ScarecrowModel<T extends ArmedEntityRenderState> extends EntityModel<T> implements ArmedModel<T>, HeadedModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "scarecrow"), "main");
 
     private final ModelPart group;
@@ -29,6 +26,7 @@ public class ScarecrowModel extends EntityModel<ScarecrowEntity> implements Arme
     private final ModelPart rightArm;
 
     public ScarecrowModel(ModelPart root) {
+        super(root, RenderTypes::entityCutoutNoCull);
         this.group = root.getChild("group");
         this.head = this.group.getChild("head");
         this.hat = this.head.getChild("hat");
@@ -64,18 +62,12 @@ public class ScarecrowModel extends EntityModel<ScarecrowEntity> implements Arme
     }
 
     @Override
-    public void setupAnim(ScarecrowEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        ItemStack stack = entity.getItemBySlot(EquipmentSlot.HEAD);
-        this.head.visible = stack.isEmpty();
+    public void setupAnim(T state) {
+        this.head.visible = state.headItem.isEmpty();
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
-        group.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
-    }
-
-    @Override
-    public void translateToHand(HumanoidArm arm, PoseStack poseStack) {
+    public void translateToHand(T state, HumanoidArm arm, com.mojang.blaze3d.vertex.PoseStack poseStack) {
         if (arm == HumanoidArm.LEFT) {
             this.leftArm.translateAndRotate(poseStack);
         } else {

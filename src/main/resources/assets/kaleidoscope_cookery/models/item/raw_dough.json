@@ -31,5 +31,8 @@
       }
     }
   ],
-  "parent": "kaleidoscope_cookery:item/raw_dough_0"
+  "parent": "kaleidoscope_cookery:item/raw_dough_0",
+  "textures": {
+    "particle": "kaleidoscope_cookery:item/raw_dough_0"
+  }
 }

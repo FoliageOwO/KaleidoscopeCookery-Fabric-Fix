@@ -51,14 +51,17 @@ public class StockpotRecipeCategory implements IRecipeCategory<RecipeHolder<Stoc
     }
 
     public static List<RecipeHolder<StockpotRecipe>> getRecipes() {
-        ClientLevel level = Minecraft.getInstance().level;
-        if (level == null) {
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) {
             return List.of();
         }
         List<RecipeHolder<StockpotRecipe>> stockpotRecipes = Lists.newArrayList();
-        stockpotRecipes.addAll(level.getRecipeManager().getAllRecipesFor(ModRecipes.STOCKPOT_RECIPE));
+        stockpotRecipes.addAll(connection.recipes().getSynchronizedRecipes().getAllOfType(ModRecipes.STOCKPOT_RECIPE));
         // 农夫乐事兼容
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null) {
         FarmersDelightCompat.getTransformRecipeForJei(level, stockpotRecipes);
+        }
         return stockpotRecipes;
     }
 
@@ -84,7 +87,7 @@ public class StockpotRecipeCategory implements IRecipeCategory<RecipeHolder<Stoc
         }
         ItemStack displayStack = soupBase.getDisplayStack();
         if (!displayStack.isEmpty()) {
-            builder.addSlot(RecipeIngredientRole.INPUT, 72, 61).addIngredients(Ingredient.of(displayStack));
+            builder.addSlot(RecipeIngredientRole.INPUT, 72, 61).addIngredients(Ingredient.of(displayStack.getItem()));
         }
         builder.addSlot(RecipeIngredientRole.OUTPUT, 143, 60).addItemStack(output);
     }

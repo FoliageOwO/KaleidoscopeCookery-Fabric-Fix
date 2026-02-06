@@ -32,7 +32,11 @@ public class KitchenShovelItem extends ShovelItem {
     }
 
     public static void setHasOil(ItemStack stack, boolean hasOil) {
-        stack.set(KITCHEN_SHOVEL_HAS_OIL, hasOil);
+        if (hasOil) {
+            stack.set(KITCHEN_SHOVEL_HAS_OIL, true);
+        } else {
+            stack.remove(KITCHEN_SHOVEL_HAS_OIL);
+        }
     }
 
     public static boolean hasOil(ItemStack stack) {

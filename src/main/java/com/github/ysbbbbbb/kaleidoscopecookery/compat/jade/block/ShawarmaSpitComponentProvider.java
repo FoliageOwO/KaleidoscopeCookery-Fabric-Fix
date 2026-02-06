@@ -17,8 +17,8 @@ import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.theme.IThemeHelper;
 import snownee.jade.api.ui.IDisplayHelper;
-import snownee.jade.api.ui.IElement;
-import snownee.jade.api.ui.IElementHelper;
+import snownee.jade.api.ui.Element;
+import snownee.jade.api.ui.JadeUI;
 
 public enum ShawarmaSpitComponentProvider implements IBlockComponentProvider {
     INSTANCE;
@@ -44,17 +44,16 @@ public enum ShawarmaSpitComponentProvider implements IBlockComponentProvider {
     }
 
     private void addItemInfo(ITooltip tooltip, ShawarmaSpitBlockEntity shawarmaSpit) {
-        IElementHelper helper = IElementHelper.get();
         ItemStack showItem = shawarmaSpit.cookingItem.isEmpty() ? shawarmaSpit.cookedItem : shawarmaSpit.cookingItem;
         if (!showItem.isEmpty()) {
-            IElement icon = helper.smallItem(showItem.copyWithCount(1));
+            Element icon = JadeUI.smallItem(showItem.copyWithCount(1));
             MutableComponent stackName = IDisplayHelper.get().stripColor(showItem.getHoverName());
-            IElement text = helper.text(Component.literal("%d×".formatted(showItem.getCount())).append(stackName).withStyle(ChatFormatting.GRAY));
+            Element text = JadeUI.text(Component.literal("%d×".formatted(showItem.getCount())).append(stackName).withStyle(ChatFormatting.GRAY));
             tooltip.add(icon);
-            tooltip.append(helper.spacer(3, 1));
+            tooltip.append(JadeUI.spacer(3, 1));
             tooltip.append(text);
             if (shawarmaSpit.cookTime > 0) {
-                tooltip.append(helper.spacer(3, 1));
+                tooltip.append(JadeUI.spacer(3, 1));
                 tooltip.append(IThemeHelper.get().seconds(shawarmaSpit.cookTime, 20).withStyle(ChatFormatting.GRAY));
             }
         }

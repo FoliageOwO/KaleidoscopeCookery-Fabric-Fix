@@ -4,24 +4,22 @@ import com.github.ysbbbbbb.kaleidoscopecookery.datagen.builder.SteamerBuilder;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModItems;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.tag.TagCommon;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeOutput;
 
-import java.util.concurrent.CompletableFuture;
-
 public class SteamerRecipeProvider extends ModRecipeProvider {
-    public SteamerRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    public SteamerRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
     }
 
     @Override
-    public void buildRecipes(RecipeOutput consumer) {
-        SteamerBuilder.builder()
+    public void buildRecipes() {
+        RecipeOutput consumer = this.output;
+        SteamerBuilder.builder(this.registries)
                 .setIngredient(ModItems.STUFFED_DOUGH_FOOD)
                 .setResult(ModItems.BAOZI)
                 .save(consumer);
 
-        SteamerBuilder.builder()
+        SteamerBuilder.builder(this.registries)
                 .setIngredient(TagCommon.DOUGH)
                 .setResult(ModItems.MANTOU)
                 .save(consumer);

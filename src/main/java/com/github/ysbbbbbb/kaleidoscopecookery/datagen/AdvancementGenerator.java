@@ -16,6 +16,6 @@ public class AdvancementGenerator extends FabricAdvancementProvider {
 
     @Override
     public void generateAdvancement(HolderLookup.Provider registryLookup, Consumer<AdvancementHolder> saver) {
-        BaseAdvancement.generate(saver);
+        BaseAdvancement.generate(registryLookup, saver);
     }
 }

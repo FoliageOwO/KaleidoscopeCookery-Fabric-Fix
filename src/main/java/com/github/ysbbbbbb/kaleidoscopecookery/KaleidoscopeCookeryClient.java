@@ -7,11 +7,6 @@ public class KaleidoscopeCookeryClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientRegistry.init();
-
-        ModModelLoading.register();
-        ModClientTooltip.register();
         ModEntitiesRender.register();
-        ModParticleFactoryRegistry.register();
-        ModBlockRenderLayerMap.register();
     }
 }

@@ -3,25 +3,37 @@ package com.github.ysbbbbbb.kaleidoscopecookery.datagen.builder;
 import com.github.ysbbbbbb.kaleidoscopecookery.KaleidoscopeCookery;
 import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.MillstoneRecipe;
 import net.minecraft.advancements.Criterion;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.RegistryLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class MillstoneRecipeBuilder implements RecipeBuilder {
     private static final String NAME = "millstone";
 
-    private Ingredient ingredient = Ingredient.EMPTY;
+    private final RegistryLookup<Item> items;
+    private Ingredient ingredient;
     private ItemStack result = ItemStack.EMPTY;
 
-    public static MillstoneRecipeBuilder builder() {
-        return new MillstoneRecipeBuilder();
+    private MillstoneRecipeBuilder(RegistryLookup<Item> items) {
+        this.items = items;
+    }
+
+    public static MillstoneRecipeBuilder builder(HolderLookup.Provider registries) {
+        return new MillstoneRecipeBuilder(registries.lookupOrThrow(Registries.ITEM));
     }
 
     public MillstoneRecipeBuilder setIngredient(ItemLike itemLike) {
@@ -30,7 +42,7 @@ public class MillstoneRecipeBuilder implements RecipeBuilder {
     }
 
     public MillstoneRecipeBuilder setIngredient(TagKey<Item> itemLike) {
-        this.ingredient = Ingredient.of(itemLike);
+        this.ingredient = Ingredient.of(items.getOrThrow(itemLike));
         return this;
     }
 
@@ -68,17 +80,18 @@ public class MillstoneRecipeBuilder implements RecipeBuilder {
     public void save(RecipeOutput output) {
         String path = RecipeBuilder.getDefaultRecipeId(this.getResult()).getPath();
         Identifier filePath = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + path);
-        this.save(output, filePath);
+        this.save(output, ResourceKey.create(Registries.RECIPE, filePath));
     }
 
     @Override
     public void save(RecipeOutput output, String recipeId) {
         Identifier filePath = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, NAME + "/" + recipeId);
-        this.save(output, filePath);
+        this.save(output, ResourceKey.create(Registries.RECIPE, filePath));
     }
 
     @Override
-    public void save(RecipeOutput recipeOutput, Identifier id) {
+    public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> id) {
+        Objects.requireNonNull(this.ingredient, "ingredient");
         MillstoneRecipe recipe = new MillstoneRecipe(this.ingredient, this.result);
         recipeOutput.accept(id, recipe, null);
     }

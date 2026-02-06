@@ -26,13 +26,15 @@ public class SitEntity extends Entity {
     public static final EntityType<SitEntity> TYPE = EntityType.Builder.<SitEntity>of(SitEntity::new, MobCategory.MISC)
             .sized(0.5f, 0.1f)
             .clientTrackingRange(10)
-            .noSave().noSummon()
+            .noSummon()
             .build(TYPE_KEY);
 
     private int passengerTick = 0;
 
     public SitEntity(EntityType<?> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
+        this.noPhysics = true;
+        this.setNoGravity(true);
     }
 
     public SitEntity(Level worldIn, BlockPos pos) {
@@ -86,6 +88,16 @@ public class SitEntity extends Entity {
         if (passengerTick > 10) {
             this.discard();
         }
+    }
+
+    @Override
+    protected boolean canRide(Entity entity) {
+        return false;
+    }
+
+    @Override
+    protected boolean canAddPassenger(Entity passenger) {
+        return this.getPassengers().isEmpty();
     }
 
     @Override

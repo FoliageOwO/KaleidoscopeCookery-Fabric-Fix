@@ -17,13 +17,14 @@ import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import me.shedaniel.rei.plugin.common.displays.crafting.DefaultCustomDisplay;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ReiSteamerRecipeCategory implements DisplayCategory<DefaultCustomDisplay> {
     public static final CategoryIdentifier<DefaultCustomDisplay> ID = CategoryIdentifier.of(KaleidoscopeCookery.MOD_ID, "plugin/steamer");
@@ -81,16 +82,20 @@ public class ReiSteamerRecipeCategory implements DisplayCategory<DefaultCustomDi
         registry.add(new ReiSteamerRecipeCategory());
         registry.addWorkstations(ReiSteamerRecipeCategory.ID,
                 ReiUtil.ofItem(ModItems.STEAMER),
-                ReiUtil.ofIngredient(Ingredient.of(TagMod.KITCHEN_KNIFE)));
+                ReiUtil.ofTag(TagMod.KITCHEN_KNIFE));
     }
 
     public static void registerDisplays(DisplayRegistry registry) {
-        registry.getRecipeManager().getAllRecipesFor(ModRecipes.STEAMER_RECIPE)
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) {
+            return;
+        }
+        connection.recipes().getSynchronizedRecipes().getAllOfType(ModRecipes.STEAMER_RECIPE)
                 .forEach(r -> {
-                    List<EntryIngredient> input = ReiUtil.ofIngredients(r.value().getIngredients());
+                    List<EntryIngredient> input = ReiUtil.ofIngredients(List.of(r.value().getIngredient()));
                     List<EntryIngredient> output = ReiUtil.ofItemStacks(r.value().getResult());
 
-                    registry.add(new DefaultCustomDisplay(r, input, output) {
+                    registry.add(new DefaultCustomDisplay(input, output, Optional.of(r.id().identifier())) {
                         @Override
                         public CategoryIdentifier<?> getCategoryIdentifier() {
                             return ReiSteamerRecipeCategory.ID;

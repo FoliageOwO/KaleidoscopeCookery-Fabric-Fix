@@ -21,6 +21,8 @@ public class ItemRenderReplacerReloadListener implements SimpleSynchronousResour
 
     @Override
     public void onResourceManagerReload(ResourceManager resourceManager) {
+        ItemRenderReplacer.resetCache();
+        INSTANCE.clear();
         resourceManager.listPacks().forEach((packResources) -> {
             IoSupplier<InputStream> resource = packResources.getResource(PackType.CLIENT_RESOURCES, FILE_PATH);
             if (resource == null) {

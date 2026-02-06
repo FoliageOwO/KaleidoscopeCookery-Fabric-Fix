@@ -18,15 +18,21 @@ import me.shedaniel.rei.api.client.registry.display.DisplayCategory;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
 import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.display.basic.BasicDisplay;
+import me.shedaniel.rei.api.common.display.DisplaySerializer;
 import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +117,11 @@ public class ReiStockpotRecipeCategory implements DisplayCategory<ReiStockpotRec
     }
 
     public static void registerDisplays(DisplayRegistry registry) {
-        List<RecipeHolder<StockpotRecipe>> list = new ArrayList<>(registry.getRecipeManager().getAllRecipesFor(ModRecipes.STOCKPOT_RECIPE));
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) {
+            return;
+        }
+        List<RecipeHolder<StockpotRecipe>> list = new ArrayList<>(connection.recipes().getSynchronizedRecipes().getAllOfType(ModRecipes.STOCKPOT_RECIPE));
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
             FarmersDelightCompat.getTransformRecipeForJei(level, list);
@@ -120,7 +130,7 @@ public class ReiStockpotRecipeCategory implements DisplayCategory<ReiStockpotRec
         list.forEach(r -> {
             List<EntryIngredient> inputs = ReiUtil.ofIngredients(r.value().getIngredients());
             List<EntryIngredient> output = ReiUtil.ofItemStacks(r.value().getResultItem(RegistryAccess.EMPTY));
-            EntryIngredient carrier = r.value().carrier().isEmpty() ? EntryIngredient.empty() : ReiUtil.ofIngredient(r.value().carrier());
+            EntryIngredient carrier = ReiUtil.ofIngredient(r.value().carrier());
 
             ISoupBase soupBase = SoupBaseManager.getSoupBase(r.value().soupBase());
             if (soupBase == null) {
@@ -128,16 +138,37 @@ public class ReiStockpotRecipeCategory implements DisplayCategory<ReiStockpotRec
             }
             EntryIngredient soupBaseEntry = ReiUtil.ofItemStack(soupBase.getDisplayStack());
 
-            registry.add(new StockpotRecipeDisplay(r.id(), inputs, output, carrier, soupBaseEntry));
+            registry.add(new StockpotRecipeDisplay(Optional.of(r.id().identifier()), inputs, output, carrier, soupBaseEntry));
         });
     }
 
     public static class StockpotRecipeDisplay extends BasicDisplay {
+        public static final MapCodec<StockpotRecipeDisplay> CODEC = RecordCodecBuilder.mapCodec(instance ->
+                instance.group(
+                        EntryIngredient.codec().listOf().fieldOf("inputs").forGetter(StockpotRecipeDisplay::getInputEntries),
+                        EntryIngredient.codec().listOf().fieldOf("outputs").forGetter(StockpotRecipeDisplay::getOutputEntries),
+                        Identifier.CODEC.optionalFieldOf("location").forGetter(StockpotRecipeDisplay::getDisplayLocation),
+                        EntryIngredient.codec().fieldOf("carrier").forGetter(d -> d.carrier),
+                        EntryIngredient.codec().fieldOf("soup_base").forGetter(d -> d.soupBase)
+                ).apply(instance, (inputs, outputs, location, carrier, soupBase) ->
+                        new StockpotRecipeDisplay(location, inputs, outputs, carrier, soupBase))
+        );
+        public static final StreamCodec<RegistryFriendlyByteBuf, StockpotRecipeDisplay> STREAM_CODEC = StreamCodec.composite(
+                EntryIngredient.streamCodec().apply(ByteBufCodecs.list()), StockpotRecipeDisplay::getInputEntries,
+                EntryIngredient.streamCodec().apply(ByteBufCodecs.list()), StockpotRecipeDisplay::getOutputEntries,
+                ByteBufCodecs.optional(Identifier.STREAM_CODEC.cast()), StockpotRecipeDisplay::getDisplayLocation,
+                EntryIngredient.streamCodec(), d -> d.carrier,
+                EntryIngredient.streamCodec(), d -> d.soupBase,
+                (inputs, outputs, location, carrier, soupBase) ->
+                        new StockpotRecipeDisplay(location, inputs, outputs, carrier, soupBase)
+        );
+        public static final DisplaySerializer<StockpotRecipeDisplay> SERIALIZER = DisplaySerializer.of(CODEC, STREAM_CODEC);
+
         public final EntryIngredient carrier;
         public final EntryIngredient soupBase;
 
-        public StockpotRecipeDisplay(Identifier location, List<EntryIngredient> inputs, List<EntryIngredient> outputs, EntryIngredient carrier, EntryIngredient soupBase) {
-            super(inputs, outputs, Optional.of(location));
+        public StockpotRecipeDisplay(Optional<Identifier> location, List<EntryIngredient> inputs, List<EntryIngredient> outputs, EntryIngredient carrier, EntryIngredient soupBase) {
+            super(inputs, outputs, location);
             this.carrier = carrier;
             this.soupBase = soupBase;
         }
@@ -145,6 +176,11 @@ public class ReiStockpotRecipeCategory implements DisplayCategory<ReiStockpotRec
         @Override
         public CategoryIdentifier<?> getCategoryIdentifier() {
             return ID;
+        }
+
+        @Override
+        public DisplaySerializer<StockpotRecipeDisplay> getSerializer() {
+            return SERIALIZER;
         }
     }
 }

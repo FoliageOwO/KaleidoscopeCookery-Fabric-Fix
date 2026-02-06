@@ -10,7 +10,7 @@ import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.ui.IElementHelper;
+import snownee.jade.api.ui.JadeUI;
 
 public enum RecipeBlockComponentProvider implements IBlockComponentProvider {
     INSTANCE;
@@ -35,14 +35,14 @@ public enum RecipeBlockComponentProvider implements IBlockComponentProvider {
         boolean isFirst = true;
         for (ItemStack stack : recipe.input()) {
             if (isFirst) {
-                tooltip.add(IElementHelper.get().item(stack));
+                tooltip.add(JadeUI.item(stack));
             } else {
-                tooltip.append(IElementHelper.get().item(stack));
+                tooltip.append(JadeUI.item(stack));
             }
             isFirst = false;
         }
-        tooltip.append(IElementHelper.get().progress(1));
-        tooltip.append(IElementHelper.get().item(output));
+        tooltip.append(JadeUI.progressArrow(1));
+        tooltip.append(JadeUI.item(output));
     }
 
     @Override

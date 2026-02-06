@@ -15,7 +15,6 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
@@ -44,12 +43,12 @@ public class ChoppingBoardRecipeCategory implements IRecipeCategory<RecipeHolder
     }
 
     public static List<RecipeHolder<ChoppingBoardRecipe>> getRecipes() {
-        ClientLevel level = Minecraft.getInstance().level;
-        if (level == null) {
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) {
             return List.of();
         }
         List<RecipeHolder<ChoppingBoardRecipe>> choppingBoardRecipes = Lists.newArrayList();
-        choppingBoardRecipes.addAll(level.getRecipeManager().getAllRecipesFor(ModRecipes.CHOPPING_BOARD_RECIPE));
+        choppingBoardRecipes.addAll(connection.recipes().getSynchronizedRecipes().getAllOfType(ModRecipes.CHOPPING_BOARD_RECIPE));
         return choppingBoardRecipes;
     }
 

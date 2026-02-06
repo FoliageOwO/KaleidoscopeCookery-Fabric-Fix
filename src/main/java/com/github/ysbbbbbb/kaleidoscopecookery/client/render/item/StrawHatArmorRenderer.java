@@ -9,11 +9,11 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
@@ -23,15 +23,32 @@ public class StrawHatArmorRenderer implements ArmorRenderer {
     private StrawHatModel cachedModel = null;
 
     @Override
-    public void render(PoseStack matrices, MultiBufferSource vertexConsumers, ItemStack stack, LivingEntity entity,
-                       EquipmentSlot slot, int light, HumanoidModel<LivingEntity> contextModel) {
+    public void render(PoseStack matrices, SubmitNodeCollector collector, ItemStack stack, HumanoidRenderState renderState,
+                       EquipmentSlot slot, int light, HumanoidModel<HumanoidRenderState> contextModel) {
+        if (slot != EquipmentSlot.HEAD) {
+            return;
+        }
         if (cachedModel == null) {
             cachedModel = new StrawHatModel(Minecraft.getInstance().getEntityModels().bakeLayer(StrawHatModel.LAYER_LOCATION));
         }
-        ModelPart head = cachedModel.getHead();
         Identifier texture = getArmorTexture(stack);
-        head.copyFrom(contextModel.head);
-        ArmorRenderer.renderPart(matrices, vertexConsumers, light, stack, cachedModel, texture);
+        matrices.pushPose();
+        matrices.scale(1.275f, 1.275f, 1.275f);
+        ArmorRenderer.submitTransformCopyingModel(
+                contextModel,
+                renderState,
+                cachedModel,
+                renderState,
+                true,
+                collector,
+                matrices,
+                RenderTypes.entityCutoutNoCull(texture),
+                light,
+                0,
+                0xFFFFFFFF,
+                null
+        );
+        matrices.popPose();
     }
 
     public Identifier getArmorTexture(ItemStack stack) {

@@ -143,18 +143,9 @@ processResources {
 def targetJavaVersion = 21
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
-    // Temporarily exclude client-side rendering/mixin sources while porting common gameplay logic.
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/client/**")
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/compat/**")
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/datagen/**")
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/KaleidoscopeCookeryClient.java")
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/GuiLayerRegistrationMixin.java")
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/ItemRendererMixin.java")
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/MCMixin.java")
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/ModelBakeryMixin.java")
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/PlayerRendererMixin.java")
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/FallingBlockEntityMixin.java")
-    exclude("**/com/github/ysbbbbbb/kaleidoscopecookery/mixin/realize/**")
+    // Client-side code still needs a full 1.21.11 render-state port.
+    // Temporarily exclude legacy client render/model/particle/mixin sources to keep the build green.
+    // full 1.21.11 client + compat + datagen migration in progress: do not exclude
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
         it.options.release.set(targetJavaVersion)
     }

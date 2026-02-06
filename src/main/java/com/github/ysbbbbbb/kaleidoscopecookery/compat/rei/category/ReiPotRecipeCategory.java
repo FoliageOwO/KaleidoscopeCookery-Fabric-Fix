@@ -15,17 +15,23 @@ import me.shedaniel.rei.api.client.registry.display.DisplayCategory;
 import me.shedaniel.rei.api.client.registry.display.DisplayRegistry;
 import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.display.basic.BasicDisplay;
+import me.shedaniel.rei.api.common.display.DisplaySerializer;
 import me.shedaniel.rei.api.common.entry.EntryIngredient;
 import me.shedaniel.rei.api.common.util.EntryStacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.world.item.crafting.Ingredient;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +60,7 @@ public class ReiPotRecipeCategory implements DisplayCategory<ReiPotRecipeCategor
         widgets.add(Widgets.createTexturedWidget(BG, startX, startY, 0, 0, WIDTH, HEIGHT));
         widgets.add(Widgets.withTranslate(Widgets.createDrawableWidget((guiGraphics, mouseX, mouseY, v) -> {
             drawCenteredString(guiGraphics, stirFryCount, WIDTH / 2, 85);
-        }), startX, startY, 0));
+        }), startX, startY));
 
         List<EntryIngredient> inputs = display.getInputEntries();
         for (int i = 0; i < inputs.size(); i++) {
@@ -109,28 +115,53 @@ public class ReiPotRecipeCategory implements DisplayCategory<ReiPotRecipeCategor
         registry.add(new ReiPotRecipeCategory());
         registry.addWorkstations(ReiPotRecipeCategory.ID,
                 ReiUtil.ofItem(ModItems.POT),
-                ReiUtil.ofIngredient(Ingredient.of(TagMod.KITCHEN_SHOVEL)),
+                ReiUtil.ofTag(TagMod.KITCHEN_SHOVEL),
                 ReiUtil.ofItem(ModItems.OIL)
         );
     }
 
     public static void registerDisplays(DisplayRegistry registry) {
-        registry.getRecipeManager().getAllRecipesFor(ModRecipes.POT_RECIPE)
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) {
+            return;
+        }
+        connection.recipes().getSynchronizedRecipes().getAllOfType(ModRecipes.POT_RECIPE)
                 .forEach(r -> {
                     List<EntryIngredient> inputs = ReiUtil.ofIngredients(r.value().getIngredients());
                     List<EntryIngredient> output = ReiUtil.ofItemStacks(r.value().getResultItem(RegistryAccess.EMPTY));
-                    EntryIngredient carrier = r.value().carrier().isEmpty() ? EntryIngredient.empty() : ReiUtil.ofIngredient(r.value().carrier());
+                    EntryIngredient carrier = r.value().carrier().map(ReiUtil::ofIngredient).orElse(EntryIngredient.empty());
 
-                    registry.add(new PotRecipeDisplay(r.id(), inputs, output, carrier, r.value().stirFryCount()));
+                    registry.add(new PotRecipeDisplay(Optional.of(r.id().identifier()), inputs, output, carrier, r.value().stirFryCount()));
                 });
     }
 
     public static class PotRecipeDisplay extends BasicDisplay {
+        public static final MapCodec<PotRecipeDisplay> CODEC = RecordCodecBuilder.mapCodec(instance ->
+                instance.group(
+                        EntryIngredient.codec().listOf().fieldOf("inputs").forGetter(PotRecipeDisplay::getInputEntries),
+                        EntryIngredient.codec().listOf().fieldOf("outputs").forGetter(PotRecipeDisplay::getOutputEntries),
+                        Identifier.CODEC.optionalFieldOf("location").forGetter(PotRecipeDisplay::getDisplayLocation),
+                        EntryIngredient.codec().fieldOf("carrier").forGetter(d -> d.carrier),
+                        Codec.INT.fieldOf("stir_fry_count").forGetter(d -> d.stirFryCount)
+                ).apply(instance, (inputs, outputs, location, carrier, stirFryCount) ->
+                        new PotRecipeDisplay(location, inputs, outputs, carrier, stirFryCount))
+        );
+        public static final StreamCodec<RegistryFriendlyByteBuf, PotRecipeDisplay> STREAM_CODEC = StreamCodec.composite(
+                EntryIngredient.streamCodec().apply(ByteBufCodecs.list()), PotRecipeDisplay::getInputEntries,
+                EntryIngredient.streamCodec().apply(ByteBufCodecs.list()), PotRecipeDisplay::getOutputEntries,
+                ByteBufCodecs.optional(Identifier.STREAM_CODEC.cast()), PotRecipeDisplay::getDisplayLocation,
+                EntryIngredient.streamCodec(), d -> d.carrier,
+                ByteBufCodecs.INT, d -> d.stirFryCount,
+                (inputs, outputs, location, carrier, stirFryCount) ->
+                        new PotRecipeDisplay(location, inputs, outputs, carrier, stirFryCount)
+        );
+        public static final DisplaySerializer<PotRecipeDisplay> SERIALIZER = DisplaySerializer.of(CODEC, STREAM_CODEC);
+
         public final EntryIngredient carrier;
         public final int stirFryCount;
 
-        public PotRecipeDisplay(Identifier location, List<EntryIngredient> inputs, List<EntryIngredient> outputs, EntryIngredient carrier, int stirFryCount) {
-            super(inputs, outputs, Optional.of(location));
+        public PotRecipeDisplay(Optional<Identifier> location, List<EntryIngredient> inputs, List<EntryIngredient> outputs, EntryIngredient carrier, int stirFryCount) {
+            super(inputs, outputs, location);
             this.carrier = carrier;
             this.stirFryCount = stirFryCount;
         }
@@ -138,6 +169,11 @@ public class ReiPotRecipeCategory implements DisplayCategory<ReiPotRecipeCategor
         @Override
         public CategoryIdentifier<?> getCategoryIdentifier() {
             return ID;
+        }
+
+        @Override
+        public DisplaySerializer<PotRecipeDisplay> getSerializer() {
+            return SERIALIZER;
         }
     }
 }

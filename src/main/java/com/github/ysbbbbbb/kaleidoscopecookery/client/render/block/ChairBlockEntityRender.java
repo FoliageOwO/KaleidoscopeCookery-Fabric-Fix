@@ -1,56 +1,31 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.client.render.block;
 
-import com.github.ysbbbbbb.kaleidoscopecookery.KaleidoscopeCookery;
-import com.github.ysbbbbbb.kaleidoscopecookery.block.decoration.ChairBlock;
 import com.github.ysbbbbbb.kaleidoscopecookery.blockentity.decoration.ChairBlockEntity;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.Util;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-
-import java.util.function.Function;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.world.phys.Vec3;
 @Environment(EnvType.CLIENT)
-public class ChairBlockEntityRender implements BlockEntityRenderer<ChairBlockEntity> {
-    private static final Function<DyeColor, Identifier> CACHE_MODEL = Util.memoize(color ->
-            Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "block/carpet/chair/" + color.getName()));
-
-    private final BlockEntityRendererProvider.Context context;
-
+public class ChairBlockEntityRender implements BlockEntityRenderer<ChairBlockEntity, BlockEntityRenderState> {
     public ChairBlockEntityRender(BlockEntityRendererProvider.Context context) {
-        this.context = context;
     }
 
     @Override
-    public void render(ChairBlockEntity chair, float pPartialTick, PoseStack poseStack,
-                       MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        if (chair.getBlockState().getValue(ChairBlock.HAS_CARPET)) {
-            ItemRenderer itemRenderer = this.context.getItemRenderer();
-            Identifier cacheModel = CACHE_MODEL.apply(chair.getColor());
+    public BlockEntityRenderState createRenderState() {
+        return new BlockEntityRenderState();
+    }
 
-            poseStack.pushPose();
-            int rotation = chair.getBlockState().getValue(HorizontalDirectionalBlock.FACING).getOpposite().get2DDataValue();
-            poseStack.translate(0.5, 0, 0.5);
-            poseStack.mulPose(Axis.YP.rotationDegrees(-rotation * 90));
-            poseStack.translate(-0.5, 0, -0.5);
-            BakedModel model = itemRenderer.getItemModelShaper().getModelManager().getModel(cacheModel);
-            RenderType renderType = RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS);
-            VertexConsumer vertexConsumer = ItemRenderer.getFoilBufferDirect(buffer, renderType, true, false);
-            if (model != null)
-                itemRenderer.renderModelLists(model, ItemStack.EMPTY, packedLight, packedOverlay, poseStack, vertexConsumer);
-            poseStack.popPose();
-        }
+    @Override
+    public void extractRenderState(ChairBlockEntity chair, BlockEntityRenderState state, float partialTick, Vec3 cameraPos, ModelFeatureRenderer.CrumblingOverlay breakProgress) {
+        BlockEntityRenderState.extractBase(chair, state, breakProgress);
+    }
+
+    @Override
+    public void submit(BlockEntityRenderState state, com.mojang.blaze3d.vertex.PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
     }
 }

@@ -13,5 +13,8 @@
       }
     }
   ],
-  "parent": "kaleidoscope_cookery:item/pot_no_oil"
+  "parent": "kaleidoscope_cookery:item/pot_no_oil",
+  "textures": {
+    "particle": "kaleidoscope_cookery:item/pot_no_oil"
+  }
 }

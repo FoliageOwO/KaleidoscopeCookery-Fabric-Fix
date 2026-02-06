@@ -8,6 +8,8 @@ import com.github.ysbbbbbb.kaleidoscopecookery.init.tag.TagMod;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.criterion.*;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
 
@@ -16,18 +18,20 @@ import java.util.function.Consumer;
 import static com.github.ysbbbbbb.kaleidoscopecookery.datagen.advancement.AdvancementTools.*;
 
 public class BaseAdvancement {
-    public static void generate(Consumer<AdvancementHolder> saver) {
+    public static void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver) {
+        var items = registries.lookupOrThrow(Registries.ITEM);
+        var entityTypes = registries.lookupOrThrow(Registries.ENTITY_TYPE);
         // 根成就 - 森罗厨房
         AdvancementHolder root = makeTask(ModItems.POT, "root")
                 .addCriterion("has_pot", InventoryChangeTrigger.TriggerInstance.hasItems(
-                        ItemPredicate.Builder.item().of(TagMod.COOKERY_MOD_ITEMS).build()
+                        ItemPredicate.Builder.item().of(items, TagMod.COOKERY_MOD_ITEMS).build()
                 )).save(saver, modLoc("root"));
 
         // 菜刀系列成就
         AdvancementHolder ironKnife = makeTask(ModItems.IRON_KITCHEN_KNIFE, "iron_knife")
                 .parent(root)
                 .addCriterion("has_iron_knife", InventoryChangeTrigger.TriggerInstance.hasItems(
-                        ItemPredicate.Builder.item().of(TagMod.KITCHEN_KNIFE).build()
+                        ItemPredicate.Builder.item().of(items, TagMod.KITCHEN_KNIFE).build()
                 ))
                 .save(saver, modLoc("iron_knife"));
 
@@ -40,10 +44,10 @@ public class BaseAdvancement {
         AdvancementHolder oil = makeTask(ModItems.OIL, "oil")
                 .parent(ironKnife)
                 .addCriterion("kill_pig", KilledTrigger.TriggerInstance.playerKilledEntity(
-                        EntityPredicate.Builder.entity().of(TagMod.PIG_OIL_SOURCE),
+                        EntityPredicate.Builder.entity().of(entityTypes, TagMod.PIG_OIL_SOURCE),
                         DamageSourcePredicate.Builder.damageType().direct(EntityPredicate.Builder.entity().equipment(
                                 EntityEquipmentPredicate.Builder.equipment().mainhand(
-                                        ItemPredicate.Builder.item().of(TagMod.KITCHEN_KNIFE))
+                                        ItemPredicate.Builder.item().of(items, TagMod.KITCHEN_KNIFE))
                         ))
                 ))
                 .save(saver, modLoc("oil"));
@@ -56,10 +60,10 @@ public class BaseAdvancement {
         AdvancementHolder dangerousChef = makeChallenge(ModItems.OIL, "dangerous_chef")
                 .parent(oil)
                 .addCriterion("kill_piglin_brute", KilledTrigger.TriggerInstance.playerKilledEntity(
-                        EntityPredicate.Builder.entity().of(EntityType.PIGLIN_BRUTE),
+                        EntityPredicate.Builder.entity().of(entityTypes, EntityType.PIGLIN_BRUTE),
                         DamageSourcePredicate.Builder.damageType().direct(EntityPredicate.Builder.entity().equipment(
                                 EntityEquipmentPredicate.Builder.equipment().mainhand(
-                                        ItemPredicate.Builder.item().of(TagMod.KITCHEN_KNIFE))
+                                        ItemPredicate.Builder.item().of(items, TagMod.KITCHEN_KNIFE))
                         ))
                 ))
                 .save(saver, modLoc("dangerous_chef"));
@@ -73,7 +77,7 @@ public class BaseAdvancement {
         AdvancementHolder modSeed = makeTask(ModItems.TOMATO_SEED, "tomato_seed")
                 .parent(strawHat)
                 .addCriterion("has_tomato_seed", InventoryChangeTrigger.TriggerInstance.hasItems(
-                        ItemPredicate.Builder.item().of(TagMod.COOKERY_MOD_SEEDS).build()
+                        ItemPredicate.Builder.item().of(items, TagMod.COOKERY_MOD_SEEDS).build()
                 ))
                 .requirements(AdvancementRequirements.Strategy.OR)
                 .save(saver, modLoc("tomato_seed"));
@@ -86,7 +90,7 @@ public class BaseAdvancement {
         AdvancementHolder farmerSet = makeTask(ModItems.FARMER_CHEST_PLATE, "farmer_set")
                 .parent(strawHat)
                 .addCriterion("has_straw_hat", InventoryChangeTrigger.TriggerInstance.hasItems(
-                        ItemPredicate.Builder.item().of(TagMod.STRAW_HAT).build()
+                        ItemPredicate.Builder.item().of(items, TagMod.STRAW_HAT).build()
                 ))
                 .addCriterion("has_farmer_chestplate", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.FARMER_CHEST_PLATE))
                 .addCriterion("has_farmer_leggings", InventoryChangeTrigger.TriggerInstance.hasItems(ModItems.FARMER_LEGGINGS))

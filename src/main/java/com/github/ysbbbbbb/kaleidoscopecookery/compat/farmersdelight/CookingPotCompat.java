@@ -4,6 +4,8 @@ import com.github.ysbbbbbb.kaleidoscopecookery.crafting.recipe.StockpotRecipe;
 import com.github.ysbbbbbb.kaleidoscopecookery.crafting.serializer.StockpotRecipeSerializer;
 import com.github.ysbbbbbb.kaleidoscopecookery.init.ModEvents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
@@ -19,18 +21,29 @@ public class CookingPotCompat {
         if (level == null) {
             return;
         }
-        RecipeManager recipeManager = level.getRecipeManager();
-        recipeManager.getAllRecipesFor(ModRecipeTypes.COOKING.get()).forEach(recipe -> recipes.add(transformRecipe(recipe, level)));
+        RecipeManager recipeManager = level.getServer() != null ? level.getServer().getRecipeManager() : null;
+        if (recipeManager == null) {
+            return;
+        }
+        recipeManager.getRecipes().forEach(recipe -> {
+            if (recipe.value() instanceof CookingPotRecipe) {
+                @SuppressWarnings("unchecked")
+                RecipeHolder<CookingPotRecipe> holder = (RecipeHolder<CookingPotRecipe>) recipe;
+                recipes.add(transformRecipe(holder, level));
+            }
+        });
     }
 
     static RecipeHolder<StockpotRecipe> transformRecipe(RecipeHolder<CookingPotRecipe> holder, Level level) {
         CookingPotRecipe cookingPotRecipe = holder.value();
+        NonNullList<Ingredient> inputs = NonNullList.create();
+        inputs.addAll(cookingPotRecipe.input());
         // 默认全部使用水作为汤底
         StockpotRecipe recipe = new StockpotRecipe(
-                cookingPotRecipe.getIngredients(),
-                cookingPotRecipe.getResultItem(level.registryAccess()),
+                inputs,
+                cookingPotRecipe.result(),
                 cookingPotRecipe.getCookTime(),
-                cookingPotRecipe.getOutputContainer()
+                cookingPotRecipe.container()
         );
         return new RecipeHolder<>(holder.id(), recipe);
     }
@@ -39,7 +52,10 @@ public class CookingPotCompat {
     static void afterStockpotRecipeMatch() {
         ModEvents.STOCKPOT_RECIPE_POST.register(event -> {
             RecipeHolder<StockpotRecipe> rawOutput = event.getRawOutput();
-            RecipeManager recipeManager = event.getLevel().getRecipeManager();
+            RecipeManager recipeManager = event.getLevel().getServer() != null ? event.getLevel().getServer().getRecipeManager() : null;
+            if (recipeManager == null) {
+                return;
+            }
 
             if (rawOutput.id() != StockpotRecipeSerializer.EMPTY_ID) {
                 return;

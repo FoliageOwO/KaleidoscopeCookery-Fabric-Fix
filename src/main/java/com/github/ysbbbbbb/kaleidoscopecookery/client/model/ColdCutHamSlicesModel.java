@@ -1,8 +1,6 @@
 package com.github.ysbbbbbb.kaleidoscopecookery.client.model;
 
 import com.github.ysbbbbbb.kaleidoscopecookery.KaleidoscopeCookery;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.Model;
@@ -10,11 +8,12 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.resources.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class ColdCutHamSlicesModel extends Model {
+public class ColdCutHamSlicesModel extends Model<BlockEntityRenderState> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "cold_cut_ham_slices"), "main");
 
     private final ModelPart food;
@@ -30,7 +29,7 @@ public class ColdCutHamSlicesModel extends Model {
     private final ModelPart bite8;
 
     public ColdCutHamSlicesModel(ModelPart root) {
-        super(RenderType::entityCutoutNoCull);
+        super(root, RenderTypes::entityCutoutNoCull);
 
         this.base = root.getChild("base");
         this.food = root.getChild("food");
@@ -103,12 +102,6 @@ public class ColdCutHamSlicesModel extends Model {
         PartDefinition bite8_r2 = bite8.addOrReplaceChild("bite8_r2", CubeListBuilder.create().texOffs(121, 10).addBox(-3.0F, -1.0F, -6.0F, 7.0F, 2.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-3.0F, 0.0F, -1.0F, -0.3927F, 0.0F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 256, 64);
-    }
-
-    @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, int color) {
-        food.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
-        base.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
     }
 
     public void updateBites(int bites) {

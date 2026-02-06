@@ -9,8 +9,9 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -19,6 +20,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.storage.TagValueOutput;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -58,8 +61,11 @@ public abstract class FallingBlockEntityMixin extends Entity {
             ci.cancel();
             // 换成自己的掉落物
             List<ItemStack> drops = dropAsItem(blockState, self.blockData, self.level());
-            for (ItemStack drop : drops) {
-                self.spawnAtLocation(drop);
+            Level level = this.level();
+            if (level instanceof ServerLevel serverLevel) {
+                for (ItemStack drop : drops) {
+                    self.spawnAtLocation(serverLevel, drop);
+                }
             }
         }
     }
@@ -70,15 +76,12 @@ public abstract class FallingBlockEntityMixin extends Entity {
         int[] cookingProgress = new int[8];
         int[] cookingTime = new int[8];
         if (steamerTag != null) {
-            if (steamerTag.contains(SteamerBlockEntity.ITEMS_TAG, Tag.TAG_LIST)) {
-                ContainerHelper.loadAllItems(steamerTag, items, level.registryAccess());
+            var input = TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), steamerTag);
+            if (input.child(SteamerBlockEntity.ITEMS_TAG).isPresent()) {
+                ContainerHelper.loadAllItems(input.childOrEmpty(SteamerBlockEntity.ITEMS_TAG), items);
             }
-            if (steamerTag.contains(SteamerBlockEntity.COOKING_PROGRESS_TAG, Tag.TAG_INT_ARRAY)) {
-                cookingProgress = steamerTag.getIntArray(SteamerBlockEntity.COOKING_PROGRESS_TAG);
-            }
-            if (steamerTag.contains(SteamerBlockEntity.COOKING_TIME_TAG, Tag.TAG_INT_ARRAY)) {
-                cookingTime = steamerTag.getIntArray(SteamerBlockEntity.COOKING_TIME_TAG);
-            }
+            cookingProgress = input.getIntArray(SteamerBlockEntity.COOKING_PROGRESS_TAG).orElse(new int[8]);
+            cookingTime = input.getIntArray(SteamerBlockEntity.COOKING_TIME_TAG).orElse(new int[8]);
         }
         level.setBlock(pos, level.getBlockState(pos).setValue(HALF, false), Block.UPDATE_ALL);
         if (level.getBlockEntity(pos) instanceof SteamerBlockEntity steamerBlockEntity)
@@ -107,15 +110,12 @@ public abstract class FallingBlockEntityMixin extends Entity {
         int[] cookingProgress = new int[8];
         int[] cookingTime = new int[8];
         if (steamerTag != null) {
-            if (steamerTag.contains(SteamerBlockEntity.ITEMS_TAG, Tag.TAG_LIST)) {
-                ContainerHelper.loadAllItems(steamerTag, items, level.registryAccess());
+            var input = TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), steamerTag);
+            if (input.child(SteamerBlockEntity.ITEMS_TAG).isPresent()) {
+                ContainerHelper.loadAllItems(input.childOrEmpty(SteamerBlockEntity.ITEMS_TAG), items);
             }
-            if (steamerTag.contains(SteamerBlockEntity.COOKING_PROGRESS_TAG, Tag.TAG_INT_ARRAY)) {
-                cookingProgress = steamerTag.getIntArray(SteamerBlockEntity.COOKING_PROGRESS_TAG);
-            }
-            if (steamerTag.contains(SteamerBlockEntity.COOKING_TIME_TAG, Tag.TAG_INT_ARRAY)) {
-                cookingTime = steamerTag.getIntArray(SteamerBlockEntity.COOKING_TIME_TAG);
-            }
+            cookingProgress = input.getIntArray(SteamerBlockEntity.COOKING_PROGRESS_TAG).orElse(new int[8]);
+            cookingTime = input.getIntArray(SteamerBlockEntity.COOKING_TIME_TAG).orElse(new int[8]);
         }
 
         List<ItemStack> drops = Lists.newArrayList();
@@ -132,8 +132,8 @@ public abstract class FallingBlockEntityMixin extends Entity {
         }
 
         // 只需要保存物品和进度即可
-        CompoundTag tag1 = new CompoundTag();
-        CompoundTag tag2 = new CompoundTag();
+        TagValueOutput tag1 = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, level.registryAccess());
+        TagValueOutput tag2 = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, level.registryAccess());
         SteamerBlockEntity.saveSplit(tag1, tag2, level, items, cookingProgress, cookingTime);
 
         BlockItem.setBlockEntityData(first, ModBlocks.STEAMER_BE, tag1);

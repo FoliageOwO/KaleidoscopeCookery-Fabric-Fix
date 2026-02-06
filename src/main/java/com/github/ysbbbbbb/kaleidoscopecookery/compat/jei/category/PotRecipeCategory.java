@@ -16,7 +16,6 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -47,12 +46,12 @@ public class PotRecipeCategory implements IRecipeCategory<RecipeHolder<PotRecipe
     }
 
     public static List<RecipeHolder<PotRecipe>> getRecipes() {
-        ClientLevel level = Minecraft.getInstance().level;
-        if (level == null) {
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection == null) {
             return List.of();
         }
         List<RecipeHolder<PotRecipe>> potRecipes = Lists.newArrayList();
-        potRecipes.addAll(level.getRecipeManager().getAllRecipesFor(ModRecipes.POT_RECIPE));
+        potRecipes.addAll(connection.recipes().getSynchronizedRecipes().getAllOfType(ModRecipes.POT_RECIPE));
         return potRecipes;
     }
 
@@ -78,9 +77,9 @@ public class PotRecipeCategory implements IRecipeCategory<RecipeHolder<PotRecipe
             int yOffset = (i / 3) * 18 + 24;
             builder.addSlot(RecipeIngredientRole.INPUT, xOffset, yOffset).addIngredients(inputs.get(i)).setBackground(slotDraw, -1, -1);
         }
-        if (!recipe.value().carrier().isEmpty()) {
-            builder.addSlot(RecipeIngredientRole.INPUT, 133, 18).addIngredients(recipe.value().carrier());
-        }
+        recipe.value().carrier().ifPresent(ingredient ->
+                builder.addSlot(RecipeIngredientRole.INPUT, 133, 18).addIngredients(ingredient)
+        );
         builder.addSlot(RecipeIngredientRole.OUTPUT, 143, 60).addItemStack(output).setBackground(slotDraw, -1, -1);
     }
 
