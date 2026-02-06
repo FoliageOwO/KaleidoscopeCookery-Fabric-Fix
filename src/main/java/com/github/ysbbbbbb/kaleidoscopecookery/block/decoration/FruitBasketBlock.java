@@ -84,16 +84,31 @@ public class FruitBasketBlock extends HorizontalDirectionalBlock implements Enti
         }
         if (level.getBlockEntity(pos) instanceof FruitBasketBlockEntity fruitBasket) {
             if (player.isSecondaryUseActive()) {
-                fruitBasket.takeOut(player);
+                if (!level.isClientSide()) {
+                    fruitBasket.takeOut(player);
+                }
                 return InteractionResult.SUCCESS;
             }
             ItemStack mainHandItem = player.getMainHandItem();
             if (!mainHandItem.isEmpty()&& !mainHandItem.is(ModItems.TRANSMUTATION_LUNCH_BAG)) {
-                fruitBasket.putOn(player.getMainHandItem());
+                if (!level.isClientSide()) {
+                    fruitBasket.putOn(player.getMainHandItem());
+                }
                 return InteractionResult.SUCCESS;
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+    }
+
+    @Override
+    public @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (level.getBlockEntity(pos) instanceof FruitBasketBlockEntity fruitBasket) {
+            if (!level.isClientSide()) {
+                fruitBasket.takeOut(player);
+            }
+            return InteractionResult.SUCCESS;
+        }
+        return super.useWithoutItem(state, level, pos, player, hitResult);
     }
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         if (stack.has(ModDataComponents.FRUIT_BASKET_ITEMS) && level.getBlockEntity(pos) instanceof FruitBasketBlockEntity basket) {
