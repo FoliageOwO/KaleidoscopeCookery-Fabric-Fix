@@ -1,6 +1,7 @@
 {
-  "parent": "minecraft:builtin/entity",
+  "parent": "minecraft:block/block",
   "textures": {
     "particle": "minecraft:block/stone"
-  }
+  },
+  "elements": []
 }

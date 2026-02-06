@@ -35,7 +35,7 @@ import java.util.Map;
 
 @Environment(EnvType.CLIENT)
 public class MillstoneBlockEntityRender implements BlockEntityRenderer<MillstoneBlockEntity, MillstoneBlockEntityRender.MillstoneRenderState> {
-    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/block/millstone.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(KaleidoscopeCookery.MOD_ID, "textures/entity/millstone.png");
 
     private final MillstoneModel bodyModel;
     private final ItemModelResolver itemModelResolver;
